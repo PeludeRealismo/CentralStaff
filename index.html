@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -174,79 +173,8 @@
         .header-right{ display:flex; align-items:center; gap:10px; }
         .nav{ background-color:var(--card-bg); padding:0 30px; box-shadow:var(--shadow); }
         .nav-list{ display:flex; list-style:none; overflow-x:auto; }
-
-        /* Estilos do nav-item ajustados para o novo botão */
-        .nav-item{ 
-            padding:15px 20px; 
-            cursor:pointer; 
-            font-weight:500; 
-            white-space:nowrap;
-            display: flex; 
-            align-items: center; 
-            justify-content: center;
-            position: relative;
-        }
-
-        /* NOVO ESTILO DE BOTÃO DE NAVEGAÇÃO */
-        /* === removing default button style ===*/
-        .nav-button {
-            margin: 0;
-            height: 100%;
-            background: transparent;
-            padding: 0 10px;
-            border: none;
-            cursor: pointer;
-            text-align: center;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        /* button styling */
-        .nav-button {
-            --border-right: 3px;
-            --text-stroke-color: var(--text-light); 
-            --animation-color: var(--primary); 
-            --fs-size: 0.9em;
-            letter-spacing: 1px;
-            text-decoration: none;
-            font-size: var(--fs-size);
-            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-            position: relative;
-            text-transform: uppercase;
-            color: transparent;
-            font-weight: 500;
-            -webkit-text-stroke: 1px var(--text-stroke-color);
-        }
-        /* Altera o traço no estado ativo/selecionado */
-        .nav-item.active .nav-button {
-            -webkit-text-stroke: 1px var(--animation-color);
-        }
-
-        /* this is the text, when you hover on button */
-        .hover-text {
-            position: absolute;
-            box-sizing: border-box;
-            content: attr(data-text);
-            color: var(--animation-color);
-            width: 0%;
-            inset: 0;
-            border-right: var(--border-right) solid var(--animation-color);
-            overflow: hidden;
-            transition: 0.5s;
-            -webkit-text-stroke: 1px var(--animation-color);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0 10px;
-        }
-        /* hover */
-        .nav-button:hover .hover-text,
-        .nav-item.active .hover-text { /* Faz o texto preencher no estado ativo também */
-            width: 100%;
-            filter: drop-shadow(0 0 10px var(--animation-color));
-        }
-        /* FIM NOVO ESTILO */
+        .nav-item{ padding:15px 20px; cursor:pointer; border-bottom:3px solid transparent; font-weight:500; white-space:nowrap;}
+        .nav-item.active{ color:var(--primary); border-bottom-color:var(--primary); }
 
         .main-content{ flex:1; padding:30px; }
         .tab-content{ display:none; } .tab-content.active{ display:block; }
@@ -581,9 +509,11 @@
             background-color: rgba(255, 255, 255, 0.08);
         }
         /* FIM: ESTILOS DO SELETOR PERSONALIZADO */
-    </style>
+
+
+</style>
 </head>
-<body data-theme="default">
+<body>
     <div class="toast-container" id="toastContainer"></div>
 
     <div class="login-container" id="loginScreen">
@@ -620,48 +550,13 @@
 
         <nav class="nav">
             <ul class="nav-list">
-                <li class="nav-item active" data-tab="dashboard">
-                    <button class="nav-button" data-text="&nbsp;Dashboard&nbsp;">
-                        <span class="actual-text">&nbsp;Dashboard&nbsp;</span>
-                        <span aria-hidden="true" class="hover-text">&nbsp;Dashboard&nbsp;</span>
-                    </button>
-                </li>
-                <li class="nav-item" data-tab="denuncias">
-                    <button class="nav-button" data-text="&nbsp;Quadro de Denúncias&nbsp;">
-                        <span class="actual-text">&nbsp;Quadro de Denúncias&nbsp;</span>
-                        <span aria-hidden="true" class="hover-text">&nbsp;Quadro de Denúncias&nbsp;</span>
-                    </button>
-                </li>
-                <li class="nav-item" data-tab="fichas">
-                    <button class="nav-button" data-text="&nbsp;Fichas de Players&nbsp;">
-                        <span class="actual-text">&nbsp;Fichas de Players&nbsp;</span>
-                        <span aria-hidden="true" class="hover-text">&nbsp;Fichas de Players&nbsp;</span>
-                    </button>
-                </li>
-                <li class="nav-item" data-tab="agenda">
-                    <button class="nav-button" data-text="&nbsp;Agenda&nbsp;">
-                        <span class="actual-text">&nbsp;Agenda&nbsp;</span>
-                        <span aria-hidden="true" class="hover-text">&nbsp;Agenda&nbsp;</span>
-                    </button>
-                </li>
-                <li class="nav-item" data-tab="historico">
-                    <button class="nav-button" data-text="&nbsp;Histórico&nbsp;">
-                        <span class="actual-text">&nbsp;Histórico&nbsp;</span>
-                        <span aria-hidden="true" class="hover-text">&nbsp;Histórico&nbsp;</span>
-                    </button>
-                </li>
-                <li class="nav-item" data-tab="config">
-                    <button class="nav-button" data-text="&nbsp;Configurações&nbsp;">
-                        <span class="actual-text">&nbsp;Configurações&nbsp;</span>
-                        <span aria-hidden="true" class="hover-text">&nbsp;Configurações&nbsp;</span>
-                    </button>
-                </li>
-                <li class="nav-item" data-tab="anotacoes">
-                    <button class="nav-button" data-text="&nbsp;Anotações Gerais&nbsp;">
-                        <span class="actual-text">&nbsp;Anotações Gerais&nbsp;</span>
-                        <span aria-hidden="true" class="hover-text">&nbsp;Anotações Gerais&nbsp;</span>
-                    </button>
-                </li>
+                <li class="nav-item active" data-tab="dashboard">Dashboard</li>
+                <li class="nav-item" data-tab="denuncias">Quadro de Denúncias</li>
+                <li class="nav-item" data-tab="fichas">Fichas de Players</li>
+                <li class="nav-item" data-tab="agenda">Agenda</li>
+                <li class="nav-item" data-tab="historico">Histórico</li>
+                <li class="nav-item" data-tab="config">Configurações</li>
+                <li class="nav-item" data-tab="anotacoes">Anotações Gerais</li>
             </ul>
         </nav>
 
@@ -1084,6 +979,25 @@
         </div>
     </div>
 
+    <div class="modal" id="moveDenunciaModal">
+      <div class="modal-content" style="max-width: 400px;">
+        <div class="modal-header">
+          <h3 class="modal-title">Mover Denúncia</h3>
+          <button class="modal-close" onclick="document.getElementById('moveDenunciaModal').style.display='none'">&times;</button>
+        </div>
+        <div class="modal-body">
+          <p>Selecione o novo tópico:</p>
+          <div class="custom-select-container" id="moveTopicoSelectContainer">
+            <select id="moveTopicoSelect"></select>
+          </div>
+          </div>
+        <div class="modal-footer">
+          <button class="btn" style="background:var(--text-light);" onclick="document.getElementById('moveDenunciaModal').style.display='none'">Cancelar</button>
+          <button class="btn" onclick="confirmMoveDenuncia()">Mover</button>
+        </div>
+      </div>
+    </div>
+
 <script>
 /* =========================
    Dados iniciais e elementos
@@ -1402,18 +1316,15 @@ logoutBtn.addEventListener('click', ()=>{
 });
 
 /* =========================
-   Navegação de abas (AJUSTADA)
+   Navegação de abas
    ========================= */
 navItems.forEach(item => {
-    item.addEventListener('click', (e) => {
-        const targetItem = e.currentTarget;
-        
+    item.addEventListener('click', () => {
         navItems.forEach(n=>n.classList.remove('active'));
-        targetItem.classList.add('active');
+        item.classList.add('active');
         tabContents.forEach(tc => tc.classList.remove('active'));
-        document.getElementById(targetItem.dataset.tab).classList.add('active');
-        
-        if (targetItem.dataset.tab === 'historico') initFullHistorico();
+        document.getElementById(item.dataset.tab).classList.add('active');
+        if (item.dataset.tab === 'historico') initFullHistorico();
     });
 });
 
@@ -2651,6 +2562,8 @@ function syncPlayersLS(){
             } else {
                 setLS('players', fichas);
             }
+        } else {
+            setLS('players', fichas);
         }
     }catch(e){ console.error('syncPlayersLS', e); }
 }
@@ -2726,9 +2639,12 @@ function openMoveDenunciaModal(id){
   topicos.forEach(t => {
     select.innerHTML += `<option value="${t.id}">${t.titulo}</option>`;
   });
-  // INÍCIO: Ativa o seletor personalizado
-  initCustomSelect(select.parentNode);
-  // FIM: Ativa o seletor personalizado
+  // INÍCIO: Corrigido o container para inicializar o seletor customizado
+  const container = document.getElementById('moveTopicoSelectContainer');
+  // Limpar para que o initCustomSelect funcione sem duplicação
+  container.querySelectorAll('.select-selected, .select-items').forEach(el => el.remove());
+  initCustomSelect(container);
+  // FIM: Corrigido o container para inicializar o seletor customizado
   document.getElementById('moveDenunciaModal').style.display = 'flex';
 }
 
@@ -2750,7 +2666,7 @@ function confirmMoveDenuncia(){
 // INÍCIO: FUNÇÃO PARA SELETOR PERSONALIZADO
 function initCustomSelect(container) {
     const selElmnt = container.getElementsByTagName("select")[0];
-    // Remove qualquer seletor customizado antigo para evitar duplicação
+    // Remove qualquer seletor customizado antigo para evitar duplicação (redundante com a chamada em openMoveDenunciaModal mas mantido por segurança)
     const oldSelected = container.querySelector('.select-selected');
     const oldItems = container.querySelector('.select-items');
     if(oldSelected) oldSelected.remove();
@@ -2767,6 +2683,10 @@ function initCustomSelect(container) {
     for (let j = 0; j < selElmnt.length; j++) {
         const c = document.createElement("DIV");
         c.innerHTML = selElmnt.options[j].innerHTML;
+        // Marca o item selecionado inicialmente
+        if (j === selElmnt.selectedIndex) {
+            c.setAttribute("class", "same-as-selected");
+        }
         c.addEventListener("click", function(e) {
             const s = this.parentNode.parentNode.getElementsByTagName("select")[0];
             const h = this.parentNode.previousSibling;
@@ -2779,10 +2699,15 @@ function initCustomSelect(container) {
                         y[k].removeAttribute("class");
                     }
                     this.setAttribute("class", "same-as-selected");
+                    
+                    // Dispara o evento change no select original para que a lógica de negócio possa reagir, se necessário
+                    s.dispatchEvent(new Event('change'));
+                    
                     break;
                 }
             }
-            h.click();
+            // Simula o clique no elemento selecionado para fechar
+            h.click(); 
         });
         b.appendChild(c);
     }
@@ -2818,23 +2743,5 @@ document.addEventListener("click", closeAllSelect);
 
 </script>
 
-    <div class="modal" id="moveDenunciaModal">
-      <div class="modal-content" style="max-width: 400px;">
-        <div class="modal-header">
-          <h3 class="modal-title">Mover Denúncia</h3>
-          <button class="modal-close" onclick="document.getElementById('moveDenunciaModal').style.display='none'">&times;</button>
-        </div>
-        <div class="modal-body">
-          <p>Selecione o novo tópico:</p>
-          <div class="custom-select-container">
-            <select id="moveTopicoSelect"></select>
-          </div>
-          </div>
-        <div class="modal-footer">
-          <button class="btn" style="background:var(--text-light);" onclick="document.getElementById('moveDenunciaModal').style.display='none'">Cancelar</button>
-          <button class="btn" onclick="confirmMoveDenuncia()">Mover</button>
-        </div>
-      </div>
-    </div>
 </body>
 </html>
