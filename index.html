@@ -1767,18 +1767,18 @@
                         <input type="text" id="denunciaTitulo" placeholder="Ex: RDM em Grande Raiz">
                     </div>
                     <div class="form-group">
-                        <label for="steamId">ID Steam do Acusado</label>
+                        <label for="steamId">ID Steam do Acusado (Opcional)</label>
                         <div style="display:flex; gap:10px;">
                             <input type="text" id="steamId" placeholder="ID Steam do jogador">
                             <button type="button" class="btn btn-sm" id="searchSteamBtn">Pesquisar</button>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="discordId">ID Discord do Acusado</label>
+                        <label for="discordId">ID Discord do Acusado (Opcional)</label>
                         <input type="text" id="discordId" placeholder="ID Discord do jogador">
                     </div>
                     <div class="form-group">
-                        <label for="playerName">Nome do Player no Discord</label>
+                        <label for="playerName">Nome do Player no Discord (Opcional)</label>
                         <input type="text" id="playerName" placeholder="Nome do player no Discord">
                     </div>
                     <div class="form-group">
@@ -2249,9 +2249,16 @@ function handleDenunciasTabVisibility() {
     if (sessionStorage.getItem('systemActivated')) {
         activationContainer.style.display = 'none';
         boardWrapper.style.display = 'block';
+        // Garante que o board seja renderizado se já estiver ativado
+        if (denunciasBoard.innerHTML.trim() === '') {
+            initDenunciasBoard();
+        }
     } else {
         activationContainer.style.display = 'flex';
         boardWrapper.style.display = 'none';
+        // Restaura o botão de ativação para o estado inicial
+        activateSystemBtn.style.display = 'inline-block';
+        document.getElementById('activationAnimation').style.display = 'none';
     }
 }
 
@@ -2404,6 +2411,7 @@ function deleteAppointment(date, index) {
    ========================= */
 // Helper para criar ou encontrar uma ficha, retornando o ID
 function getOrCreateFicha(steamId, discordId, playerName) {
+    // Retorna nulo se não houver dados suficientes para criar uma ficha útil.
     if (!steamId && !discordId && !playerName) return null;
 
     let fichaExistente = fichas.find(f => (f.steamId && f.steamId === steamId) || (f.discordId && f.discordId === discordId));
@@ -2446,8 +2454,9 @@ saveDenunciaBtn.addEventListener('click', () => {
     const selectedTagEls = Array.from(tagsContainer.querySelectorAll('.tag-item.selected'));
     const selectedTags = selectedTagEls.map(el => tags.find(t=>t.id===Number(el.dataset.id))).filter(Boolean);
 
-    if (!titulo || !playerName || !descricao){
-        showToast('Preencha Título, Nome do Player e Descrição', 'error');
+    // ALTERADO: A validação agora requer apenas Título e Descrição.
+    if (!titulo || !descricao){
+        showToast('Preencha os campos Título e Descrição.', 'error');
         return;
     }
 
@@ -2465,9 +2474,12 @@ saveDenunciaBtn.addEventListener('click', () => {
         showToast('Denúncia atualizada','success');
     } else {
         // Create new
-        const fichaPrincipalId = getOrCreateFicha(steamId, discordId, playerName);
-        if (fichaPrincipalId && !playersVinculados.includes(String(fichaPrincipalId))) {
-            playersVinculados.push(String(fichaPrincipalId));
+        // ALTERADO: A ficha só é criada se um dos campos de identificação for preenchido.
+        if (steamId || discordId || playerName) {
+            const fichaPrincipalId = getOrCreateFicha(steamId, discordId, playerName);
+            if (fichaPrincipalId && !playersVinculados.includes(String(fichaPrincipalId))) {
+                playersVinculados.push(String(fichaPrincipalId));
+            }
         }
 
         const nova = {
@@ -2548,7 +2560,7 @@ saveAdditionalPlayerBtn.addEventListener('click', () => {
     const discordId = document.getElementById('addPlayerDiscordId').value.trim();
     const playerName = document.getElementById('addPlayerPlayerName').value.trim();
     
-    if (!steamId && !discordId || !playerName) {
+    if (!steamId && !discordId && !playerName) {
         showToast('Preencha o Nome e pelo menos um ID (Steam ou Discord).', 'error');
         return;
     }
@@ -2610,12 +2622,15 @@ function createDenunciaCard(d) {
         const f = fichas.find(ff=>ff.id==pid);
         return f ? `<div style="font-size:0.8rem; color:var(--text-light);">• <strong>${f.nome}</strong> (Str:${f.strikes||0}/Ori:${f.orientacoes||0})</div>` : '';
     }).join('');
+    
+    // Mostra o nome do player se existir, senão mostra 'Sem player especificado'
+    const playerPrincipalText = d.playerName ? `Player Principal: ${d.playerName}` : 'Sem player especificado.';
 
     card.innerHTML = `
         <div class="card-tags">${tagsHtml}</div>
         <div class="card-content">
             <div class="card-title">${d.titulo || 'Sem Título'}</div>
-            <div class="card-desc">Player Principal: ${d.playerName || 'N/A'}.</div>
+            <div class="card-desc">${playerPrincipalText}</div>
             ${playerInfoHtml}
         </div>
         <div class="card-footer">
@@ -2946,12 +2961,12 @@ function initFullHistorico(){ fullHistoryList.innerHTML = historico.map(evento =
 function createHistoryItemHtml(evento) { const icons={'login':'fa-sign-in-alt','logout':'fa-sign-out-alt','denuncia':'fa-exclamation-circle','ficha':'fa-user-edit','anotacao':'fa-sticky-note','agenda':'fa-calendar-alt','config':'fa-cog'}; return `<div class="history-item"><div class="history-icon"><i class="fas ${icons[evento.tipo] || 'fa-info-circle'}"></i></div><div class="history-content"><div class="history-title">${evento.mensagem}</div><div class="history-time">${new Date(evento.timestamp).toLocaleString('pt-BR')} • Por ${evento.usuario}</div></div></div>`; }
 let currentStrikes = 0, currentOrientacoes = 0; const strikesCount = document.getElementById('strikesCount'); const orientacoesCount = document.getElementById('orientacoesCount');
 document.getElementById('addStrikeBtn').addEventListener('click', ()=> strikesCount.textContent = ++currentStrikes); document.getElementById('removeStrikeBtn').addEventListener('click', ()=> strikesCount.textContent = Math.max(0, --currentStrikes)); document.getElementById('addOrientacaoBtn').addEventListener('click', ()=> orientacoesCount.textContent = ++currentOrientacoes); document.getElementById('removeOrientacaoBtn').addEventListener('click', ()=> orientacoesCount.textContent = Math.max(0, --currentOrientacoes));
-saveFichaBtn.addEventListener('click', ()=>{ const steamId = document.getElementById('fichaSteamId').value.trim(), discordId = document.getElementById('fichaDiscordId').value.trim(), playerName = document.getElementById('fichaPlayerName').value.trim(), comportamento = document.getElementById('fichaBehavior').value.trim(); if (!steamId && !playerName) { showToast('Preencha ao menos Nome e ID Steam', 'error'); return; } if (editingFichaId) { const f = fichas.find(x=>x.id===editingFichaId); Object.assign(f, {steamId, discordId, nome:playerName, comportamento, strikes: currentStrikes, orientacoes: currentOrientacoes}); addToHistorico('ficha', `Ficha editada: ${f.nome}`); } else { fichas.push({id: Date.now(), steamId, discordId, nome: playerName, comportamento, strikes: currentStrikes, orientacoes: currentOrientacoes, dataCriacao: new Date().toISOString()}); addToHistorico('ficha', `Nova ficha criada: ${playerName}`); } localStorage.setItem('fichas', JSON.stringify(fichas)); editingFichaId = null; fichaModal.style.display = 'none'; initFichasList(); initVincularPlayerOptions(); });
+saveFichaBtn.addEventListener('click', ()=>{ const steamId = document.getElementById('fichaSteamId').value.trim(), discordId = document.getElementById('fichaDiscordId').value.trim(), playerName = document.getElementById('fichaPlayerName').value.trim(), comportamento = document.getElementById('fichaBehavior').value.trim(); if (!playerName || (!steamId && !discordId)) { showToast('Preencha Nome e ao menos um ID (Steam ou Discord)', 'error'); return; } if (editingFichaId) { const f = fichas.find(x=>x.id===editingFichaId); Object.assign(f, {steamId, discordId, nome:playerName, comportamento, strikes: currentStrikes, orientacoes: currentOrientacoes}); addToHistorico('ficha', `Ficha editada: ${f.nome}`); } else { fichas.push({id: Date.now(), steamId, discordId, nome: playerName, comportamento, strikes: currentStrikes, orientacoes: currentOrientacoes, dataCriacao: new Date().toISOString()}); addToHistorico('ficha', `Nova ficha criada: ${playerName}`); } localStorage.setItem('fichas', JSON.stringify(fichas)); editingFichaId = null; fichaModal.style.display = 'none'; initFichasList(); initVincularPlayerOptions(); });
 function openFichaModalForEdit(id){ const f = fichas.find(x=>x.id===id); if (!f) return; editingFichaId = id; document.getElementById('fichaSteamId').value = f.steamId || ''; document.getElementById('fichaDiscordId').value = f.discordId || ''; document.getElementById('fichaPlayerName').value = f.nome || ''; document.getElementById('fichaBehavior').value = f.comportamento || ''; strikesCount.textContent = currentStrikes = f.strikes || 0; orientacoesCount.textContent = currentOrientacoes = f.orientacoes || 0; fichaModal.style.display = 'flex'; }
-function initFichasList(){ playersList.innerHTML = fichas.map(f => `<div class="player-card" data-id="${f.id}"><div class="player-actions"><button class="card-action-btn" title="Ver denúncias"><i class="fas fa-link"></i></button><button class="card-action-btn" title="Editar"><i class="fas fa-edit"></i></button><button class="card-action-btn" title="Excluir"><i class="fas fa-trash"></i></button></div><div class="player-id">Steam: ${f.steamId}</div><div class="player-name">${f.nome}</div><div class="player-behavior">${f.comportamento}</div><div class="player-stats"><div class="stat-badge"><div class="stat-badge-value">${f.strikes||0}</div><div class="stat-badge-label">Strikes</div></div><div class="stat-badge"><div class="stat-badge-value">${f.orientacoes||0}</div><div class="stat-badge-label">Orientações</div></div></div></div>`).join(''); playersList.querySelectorAll('.player-card').forEach(card => card.addEventListener('click', e => { const id = Number(e.currentTarget.dataset.id); if (e.target.closest('[title*="denúncias"]')) showPlayerLinkedDenuncias(id); else if (e.target.closest('[title*="Editar"]')) openFichaModalForEdit(id); else if (e.target.closest('[title*="Excluir"]')) deletePlayer(id); }));}
+function initFichasList(){ playersList.innerHTML = fichas.map(f => `<div class="player-card" data-id="${f.id}"><div class="player-actions"><button class="card-action-btn" title="Ver denúncias"><i class="fas fa-link"></i></button><button class="card-action-btn" title="Editar"><i class="fas fa-edit"></i></button><button class="card-action-btn" title="Excluir"><i class="fas fa-trash"></i></button></div><div class="player-id">Steam: ${f.steamId || 'N/A'}</div><div class="player-name">${f.nome}</div><div class="player-behavior">${f.comportamento}</div><div class="player-stats"><div class="stat-badge"><div class="stat-badge-value">${f.strikes||0}</div><div class="stat-badge-label">Strikes</div></div><div class="stat-badge"><div class="stat-badge-value">${f.orientacoes||0}</div><div class="stat-badge-label">Orientações</div></div></div></div>`).join(''); playersList.querySelectorAll('.player-card').forEach(card => card.addEventListener('click', e => { const id = Number(e.currentTarget.dataset.id); if (e.target.closest('[title*="denúncias"]')) showPlayerLinkedDenuncias(id); else if (e.target.closest('[title*="Editar"]')) openFichaModalForEdit(id); else if (e.target.closest('[title*="Excluir"]')) deletePlayer(id); }));}
 function deletePlayer(id){ if(!confirm('Excluir esta ficha?')) return; const idx = fichas.findIndex(f=>f.id===id); const name = fichas[idx].nome; fichas.splice(idx,1); localStorage.setItem('fichas', JSON.stringify(fichas)); denuncias.forEach(d => { if(d.playersVinculados) d.playersVinculados = d.playersVinculados.filter(pId => pId != id); }); localStorage.setItem('denuncias', JSON.stringify(denuncias)); initFichasList(); initVincularPlayerOptions(); initDenunciasBoard(); addToHistorico('ficha', `Ficha excluída: ${name}`); }
 function showPlayerLinkedDenuncias(playerId){ const f = fichas.find(x=>x.id===playerId); const linked = denuncias.filter(d => (d.playersVinculados||[]).includes(String(playerId))); let html = `<h4>Player: ${f.nome}</h4><p>${linked.length} denúncias vinculadas</p>` + linked.map(d => `<div class="history-item"><div class="history-content"><div class="history-title">${d.titulo}</div><small>${d.descricao}</small></div><button class="btn btn-sm" onclick="showDenunciaDetails(${d.id})">Detalhes</button></div>`).join(''); document.getElementById('denunciaDetailsContent').innerHTML = html; denunciaDetailsModal.style.display = 'flex'; }
-function showDenunciaDetails(id){ const d = denuncias.find(x=>x.id===id); if (!d) return; const anexosHtml = (d.anexos||[]).map(a => a.type === 'image' ? `<img src="${a.data}" style="width:100px;height:60px;object-fit:cover;cursor:pointer;border-radius:4px;" onclick="openLightbox('${a.data}')">` : `<a href="${a.data}" target="_blank" class="btn btn-sm">${a.name}</a>`).join(' '); const playersHtml = (d.playersVinculados||[]).map(pid => { const f = fichas.find(x=>x.id==pid); return f ? `<li>${f.nome} (Strikes: ${f.strikes||0})</li>` : '' }).join(''); const tagsHtml = (d.tags||[]).map(t=>`<span class="card-tag" style="background:${t.cor}">${t.nome}</span>`).join(' '); document.getElementById('denunciaDetailsContent').innerHTML = `<div class="detail-item"><div class="detail-label">Título</div><div class="detail-value">${d.titulo}</div></div><div class="detail-item"><div class="detail-label">Player</div><div class="detail-value">${d.playerName}</div></div><div class="detail-item"><div class="detail-label">Descrição</div><div class="detail-value">${d.descricao}</div></div><div class="detail-item"><div class="detail-label">Etiquetas</div><div class="detail-value">${tagsHtml||'—'}</div></div><div class="detail-item"><div class="detail-label">Players Vinculados</div><ul>${playersHtml||'<li>Nenhum</li>'}</ul></div><div class="detail-item"><div class="detail-label">Anexos</div><div class="detail-value" style="display:flex;gap:10px;flex-wrap:wrap;">${anexosHtml||'—'}</div></div>`; denunciaDetailsModal.style.display = 'flex'; }
+function showDenunciaDetails(id){ const d = denuncias.find(x=>x.id===id); if (!d) return; const anexosHtml = (d.anexos||[]).map(a => a.type === 'image' ? `<img src="${a.data}" style="width:100px;height:60px;object-fit:cover;cursor:pointer;border-radius:4px;" onclick="openLightbox('${a.data}')">` : `<a href="${a.data}" target="_blank" class="btn btn-sm">${a.name}</a>`).join(' '); const playersHtml = (d.playersVinculados||[]).map(pid => { const f = fichas.find(x=>x.id==pid); return f ? `<li>${f.nome} (Strikes: ${f.strikes||0})</li>` : '' }).join(''); const tagsHtml = (d.tags||[]).map(t=>`<span class="card-tag" style="background:${t.cor}">${t.nome}</span>`).join(' '); document.getElementById('denunciaDetailsContent').innerHTML = `<div class="detail-item"><div class="detail-label">Título</div><div class="detail-value">${d.titulo}</div></div><div class="detail-item"><div class="detail-label">Player</div><div class="detail-value">${d.playerName || 'Não informado'}</div></div><div class="detail-item"><div class="detail-label">Descrição</div><div class="detail-value">${d.descricao}</div></div><div class="detail-item"><div class="detail-label">Etiquetas</div><div class="detail-value">${tagsHtml||'—'}</div></div><div class="detail-item"><div class="detail-label">Players Vinculados</div><ul>${playersHtml||'<li>Nenhum</li>'}</ul></div><div class="detail-item"><div class="detail-label">Anexos</div><div class="detail-value" style="display:flex;gap:10px;flex-wrap:wrap;">${anexosHtml||'—'}</div></div>`; denunciaDetailsModal.style.display = 'flex'; }
 newTagBtn.addEventListener('click', ()=> { tagModal.querySelector('form')?.reset(); tagModal.style.display = 'flex'; }); saveTagBtn.addEventListener('click', ()=>{ const nome = document.getElementById('tagName').value.trim(); const cor = document.getElementById('tagColor').value; if (!nome) return; tags.push({ id: Date.now(), nome, cor }); localStorage.setItem('tags', JSON.stringify(tags)); addToHistorico('config', `Nova etiqueta criada: ${nome}`); tagModal.style.display = 'none'; initTagsUI(); }); manageTagsBtn.addEventListener('click', ()=> { initTagsList(); manageTagsModal.style.display = 'flex'; });
 function initTagsList(){ const list = document.getElementById('tagsManagementList'); list.innerHTML = tags.map(t => `<div class="history-item"><div class="tag-color" style="background:${t.cor}"></div><div class="history-content" style="margin-left:15px;"><div class="history-title">${t.nome}</div></div><div style="display:flex;gap:5px;"><button class="card-action-btn" data-id="${t.id}" data-action="edit-tag"><i class="fas fa-edit"></i></button><button class="card-action-btn" data-id="${t.id}" data-action="delete-tag"><i class="fas fa-trash"></i></button></div></div>`).join(''); list.querySelectorAll('button').forEach(btn => btn.addEventListener('click', e => { const id = Number(e.currentTarget.dataset.id); const action = e.currentTarget.dataset.action; if (action === 'edit-tag') { const tag = tags.find(x=>x.id===id); const n = prompt('Novo nome:',tag.nome); if(n) tag.nome=n; } else if (action === 'delete-tag') { if(!confirm('Excluir tag?')) return; tags = tags.filter(x=>x.id!==id); denuncias.forEach(d => { if(d.tags) d.tags = d.tags.filter(t=>t.id!==id); }); localStorage.setItem('denuncias',JSON.stringify(denuncias));} localStorage.setItem('tags',JSON.stringify(tags)); initTagsList(); initTagsUI(); initDenunciasBoard(); })); }
 async function handleBackgroundUpload(e){ const file = e.target.files[0]; if (!file) return; const b = await fileToBase64(file); document.documentElement.style.setProperty('--denuncias-bg', `url('${b.data}')`); localStorage.setItem('denunciasBackground', b.data); bgPreview.innerHTML = `<div class="anexo-item"><img src="${b.data}"></div>`; showToast('Background aplicado','success'); }
@@ -3003,7 +3018,7 @@ function exportDenunciasToCSV() {
     }
 
     const filteredDenuncias = denuncias.filter(d => {
-        if (d.topico === finalizadasTopic.id && d.dataFinalizacao) {
+        if (d.dataFinalizacao) { // Check dataFinalizacao directly
             const finalizacaoDate = new Date(d.dataFinalizacao);
             return finalizacaoDate >= startDate && finalizacaoDate <= endDate;
         }
@@ -3024,7 +3039,7 @@ function exportDenunciasToCSV() {
         return str;
     };
 
-    const headers = ['ID', 'Titulo', 'Player Principal', 'Steam ID', 'Discord ID', 'Data Criacao', 'Data Finalizacao', 'Descricao'];
+    const headers = ['ID', 'Titulo', 'Player Principal', 'Steam ID', 'Discord ID', 'Denunciante', 'Data Criacao', 'Data Finalizacao', 'Descricao'];
     const csvContent = [
         headers.join(','),
         ...filteredDenuncias.map(d => [
@@ -3033,6 +3048,7 @@ function exportDenunciasToCSV() {
             d.playerName,
             d.steamId,
             d.discordId,
+            d.reporterName,
             new Date(d.dataCriacao).toLocaleString('pt-BR'),
             new Date(d.dataFinalizacao).toLocaleString('pt-BR'),
             d.descricao
