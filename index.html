@@ -1736,7 +1736,7 @@
                             <label for="reportMonth">Exportar denúncias finalizadas do mês:</label>
                             <input type="month" id="reportMonth" style="padding: 10px 15px;">
                         </div>
-                        <button class="btn" id="exportExcelBtn" style="background-color: var(--success);"><i class="fas fa-file-excel"></i> Exportar para CSV (Excel)</button>
+                        <button class="btn" id="exportPdfBtn" style="background-color: var(--danger);"><i class="fas fa-file-pdf"></i> Exportar para PDF</button>
                     </div>
                 </div>
             </div>
@@ -2088,8 +2088,8 @@ const playersList = document.getElementById('playersList');
 
 const denunciasBoard = document.getElementById('denunciasBoard');
 
-// NOVO: Elementos para exportação e ativação
-const exportExcelBtn = document.getElementById('exportExcelBtn');
+// Elementos para exportação e ativação
+const exportPdfBtn = document.getElementById('exportPdfBtn');
 const reportMonthInput = document.getElementById('reportMonth');
 const activationContainer = document.getElementById('activationContainer');
 const boardWrapper = document.getElementById('boardWrapper');
@@ -2121,6 +2121,7 @@ let anexosTemporarios = []; // {type:'image'|'replay', name, data(base64)}
 let editingDenunciaId = null;
 let editingFichaId = null;
 let addingPlayerToDenunciaId = null;
+let newDenunciaTopicId = 1; // NOVO: Armazena o tópico alvo para nova denúncia
 
 /* =========================
    Utilitários / UI helpers
@@ -2166,7 +2167,7 @@ function checkLogin(){
 function performLogin(username, password) {
     if (validLogins[username] && validLogins[username] === password){
         localStorage.setItem('loggedInUser', username);
-        sessionStorage.removeItem('systemActivated'); // NOVO: Reseta o status de ativação no login
+        sessionStorage.removeItem('systemActivated');
         loginError.style.display = 'none';
         loginScreen.style.display = 'none';
         appContainer.style.display = 'flex';
@@ -2192,7 +2193,7 @@ logoutBtn.addEventListener('click', ()=>{
     addToHistorico('logout', `Usuário ${username} fez logout do sistema`);
     showToast('Logout realizado com sucesso', 'success');
     localStorage.removeItem('loggedInUser');
-    sessionStorage.removeItem('systemActivated'); // NOVO: Reseta o status de ativação no logout
+    sessionStorage.removeItem('systemActivated');
     appContainer.style.display = 'none';
     loginScreen.style.display = 'flex';
     usernameInput.value = '';
@@ -2216,7 +2217,7 @@ function initializeApp() {
     initCalendar();
     initSettings();
     initTrelloImportListeners();
-    initActivationSystem(); // NOVO: Inicializa o sistema de ativação
+    initActivationSystem();
 }
 
 /* =========================
@@ -2230,7 +2231,6 @@ navItems.forEach(item => {
         const targetTab = document.getElementById(item.dataset.tab);
         targetTab.classList.add('active');
 
-        // NOVO: Lógica para mostrar o sistema de ativação
         if (item.dataset.tab === 'denuncias') {
             handleDenunciasTabVisibility();
         }
@@ -2239,7 +2239,7 @@ navItems.forEach(item => {
 
 
 /* =========================
-   NOVO: Lógica do Sistema de Ativação
+   Lógica do Sistema de Ativação
    ========================= */
 function initActivationSystem() {
     activateSystemBtn.addEventListener('click', startActivationSequence);
@@ -2249,14 +2249,12 @@ function handleDenunciasTabVisibility() {
     if (sessionStorage.getItem('systemActivated')) {
         activationContainer.style.display = 'none';
         boardWrapper.style.display = 'block';
-        // Garante que o board seja renderizado se já estiver ativado
         if (denunciasBoard.innerHTML.trim() === '') {
             initDenunciasBoard();
         }
     } else {
         activationContainer.style.display = 'flex';
         boardWrapper.style.display = 'none';
-        // Restaura o botão de ativação para o estado inicial
         activateSystemBtn.style.display = 'inline-block';
         document.getElementById('activationAnimation').style.display = 'none';
     }
@@ -2296,8 +2294,8 @@ function startActivationSequence() {
         sessionStorage.setItem('systemActivated', 'true');
         activationContainer.style.display = 'none';
         boardWrapper.style.display = 'block';
-        initDenunciasBoard(); // Carrega o quadro após a animação
-    }, delay + 2000); // 2 segundos da barra de progresso
+        initDenunciasBoard();
+    }, delay + 2000);
 }
 
 /* =========================
@@ -2409,9 +2407,7 @@ function deleteAppointment(date, index) {
 /* =========================
    Criação/gestão de Ficha de Player
    ========================= */
-// Helper para criar ou encontrar uma ficha, retornando o ID
 function getOrCreateFicha(steamId, discordId, playerName) {
-    // Retorna nulo se não houver dados suficientes para criar uma ficha útil.
     if (!steamId && !discordId && !playerName) return null;
 
     let fichaExistente = fichas.find(f => (f.steamId && f.steamId === steamId) || (f.discordId && f.discordId === discordId));
@@ -2420,7 +2416,7 @@ function getOrCreateFicha(steamId, discordId, playerName) {
     }
 
     const novaFicha = {
-        id: Date.now() + Math.random(), // Add random to avoid collision
+        id: Date.now() + Math.random(),
         steamId: steamId || '',
         discordId: discordId || '',
         nome: playerName || `Player ${steamId || discordId}`,
@@ -2454,14 +2450,13 @@ saveDenunciaBtn.addEventListener('click', () => {
     const selectedTagEls = Array.from(tagsContainer.querySelectorAll('.tag-item.selected'));
     const selectedTags = selectedTagEls.map(el => tags.find(t=>t.id===Number(el.dataset.id))).filter(Boolean);
 
-    // ALTERADO: A validação agora requer apenas Título e Descrição.
-    if (!titulo || !descricao){
-        showToast('Preencha os campos Título e Descrição.', 'error');
+    // ALTERADO: A validação agora requer apenas o Título.
+    if (!titulo){
+        showToast('Preencha pelo menos o campo Título.', 'error');
         return;
     }
 
     if (editingDenunciaId){
-        // Edit existing
         const d = denuncias.find(x => x.id === editingDenunciaId);
         if (!d) { showToast('Denúncia não encontrada', 'error'); return; }
         d.titulo = titulo; d.steamId = steamId; d.discordId = discordId;
@@ -2473,8 +2468,6 @@ saveDenunciaBtn.addEventListener('click', () => {
         addToHistorico('denuncia', `Denúncia editada: ${d.titulo}`);
         showToast('Denúncia atualizada','success');
     } else {
-        // Create new
-        // ALTERADO: A ficha só é criada se um dos campos de identificação for preenchido.
         if (steamId || discordId || playerName) {
             const fichaPrincipalId = getOrCreateFicha(steamId, discordId, playerName);
             if (fichaPrincipalId && !playersVinculados.includes(String(fichaPrincipalId))) {
@@ -2485,7 +2478,7 @@ saveDenunciaBtn.addEventListener('click', () => {
         const nova = {
             id: Date.now(), titulo, steamId, discordId, playerName, reporterName, descricao,
             anexos: anexosTemporarios.slice(), playersVinculados, tags: selectedTags,
-            topico: 1, // Denuncias pegas
+            topico: newDenunciaTopicId, // ALTERADO: Usa o tópico selecionado
             dataCriacao: new Date().toISOString(), dataMovimento: null, dataFinalizacao: null,
             timerRunning: !!startTimer, timerStart: startTimer ? Date.now() : null, timerElapsed: 0
         };
@@ -2503,9 +2496,10 @@ saveDenunciaBtn.addEventListener('click', () => {
     startAllTimers();
 });
 
+
 function resetDenunciaForm(){
     document.getElementById('denunciaForm').reset();
-    vincularPlayer.selectedIndex = -1; // Desseleciona todos no select multiple
+    vincularPlayer.selectedIndex = -1;
     anexosTemporarios = [];
     renderAnexosPreview();
     tagsContainer.querySelectorAll('.tag-item.selected').forEach(el => el.classList.remove('selected'));
@@ -2550,7 +2544,7 @@ function deleteDenuncia(id){
    =================================== */
 function openAddPlayerModal(id) {
     addingPlayerToDenunciaId = id;
-    addPlayerModal.querySelector('input[type="text"]').value = ''; // Limpa campos
+    addPlayerModal.querySelector('input[type="text"]').value = '';
     addPlayerModal.style.display = 'flex';
     document.getElementById('addPlayerSteamId').focus();
 }
@@ -2579,7 +2573,7 @@ saveAdditionalPlayerBtn.addEventListener('click', () => {
             localStorage.setItem('denuncias', JSON.stringify(denuncias));
             addToHistorico('denuncia', `Player ${playerName} vinculado à denúncia "${denuncia.titulo}"`);
             showToast('Player vinculado com sucesso!', 'success');
-            initDenunciasBoard(); // Re-render para mostrar o novo vínculo
+            initDenunciasBoard();
         } else {
             showToast('Este player já está vinculado a esta denúncia.', 'info');
         }
@@ -2598,12 +2592,17 @@ function initDenunciasBoard(){
         const col = document.createElement('div');
         col.className = 'board-column';
         col.dataset.topicoId = top.id;
+        // INÍCIO DA ALTERAÇÃO: Adicionado botão + ao lado do contador
         col.innerHTML = `
             <div class="column-header">
                 <div class="column-title">${top.titulo}</div>
-                <div class="column-count">${items.length}</div>
+                <div style="display:flex; align-items:center; gap: 8px;">
+                     <button class="card-action-btn add-denuncia-to-topic" data-topic-id="${top.id}" title="Adicionar Denúncia neste Tópico"><i class="fas fa-plus"></i></button>
+                    <div class="column-count">${items.length}</div>
+                </div>
             </div>
             <div class="column-cards"></div>`;
+        // FIM DA ALTERAÇÃO
         const cardContainer = col.querySelector('.column-cards');
         items.sort((a, b) => new Date(b.dataCriacao) - new Date(a.dataCriacao)).forEach(d => cardContainer.appendChild(createDenunciaCard(d)));
         denunciasBoard.appendChild(col);
@@ -2623,7 +2622,6 @@ function createDenunciaCard(d) {
         return f ? `<div style="font-size:0.8rem; color:var(--text-light);">• <strong>${f.nome}</strong> (Str:${f.strikes||0}/Ori:${f.orientacoes||0})</div>` : '';
     }).join('');
     
-    // Mostra o nome do player se existir, senão mostra 'Sem player especificado'
     const playerPrincipalText = d.playerName ? `Player Principal: ${d.playerName}` : 'Sem player especificado.';
 
     card.innerHTML = `
@@ -2675,7 +2673,15 @@ function addBoardEventListeners() {
         });
     });
 
-    // Drag and Drop dos Cards
+    // NOVO: Listener para os botões "+" dos tópicos
+    denunciasBoard.querySelectorAll('.add-denuncia-to-topic').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const topicId = Number(e.currentTarget.dataset.topicId);
+            openDenunciaModal(topicId);
+        });
+    });
+
     const cards = document.querySelectorAll('.card-item');
     const columns = document.querySelectorAll('.board-column');
     let draggedCard = null;
@@ -2782,8 +2788,8 @@ function initTopicosList(){
             [topicos[index], topicos[index + 1]] = [topicos[index + 1], topicos[index]];
         }
         localStorage.setItem('topicos', JSON.stringify(topicos));
-        initTopicosList(); // Re-render the manager list
-        initDenunciasBoard(); // Re-render the main board
+        initTopicosList();
+        initDenunciasBoard();
     }));
 }
 
@@ -2838,8 +2844,8 @@ function handleTrelloImport(event) {
 
                 newDenuncias.push({
                     id: ++idCounter, titulo: card.name,
-                    steamId: '', discordId: '', // Campos em branco
-                    playerName: card.name, reporterName: '', // Campos em branco
+                    steamId: '', discordId: '',
+                    playerName: card.name, reporterName: '',
                     descricao: card.desc || `Descrição não fornecida.`,
                     anexos: cardAnexos, playersVinculados: [], tags: cardTags, topico: topicId,
                     dataCriacao: new Date(card.dateLastActivity).toISOString(),
@@ -2880,7 +2886,6 @@ function updateDashboardStats(){
     document.getElementById('lastMonth').textContent = lastMonthCount;
     document.getElementById('currentMonth').textContent = currentMonthCount;
     document.getElementById('totalDenuncias').textContent = totalFinalizadas;
-    // Avg Time logic can be added here if needed
 }
 
 function updateUpcomingAppointments() {
@@ -2944,7 +2949,7 @@ function updateServerStatus() {
 
 
 /* =========================
-   Outras Funções (já existentes e modificadas)
+   Outras Funções
    ========================= */
 function initTagsUI(){ tagsContainer.innerHTML = tags.map(tag => `<div class="tag-item" data-id="${tag.id}"><div class="tag-color" style="background:${tag.cor}"></div><span>${tag.nome}</span></div>`).join(''); tagsContainer.querySelectorAll('.tag-item').forEach(el => el.addEventListener('click', () => el.classList.toggle('selected'))); }
 function initVincularPlayerOptions(){ vincularPlayer.innerHTML = '<option value="">Nenhum</option>' + fichas.map(f => `<option value="${f.id}">${f.nome} (${f.steamId || 'N/A'})</option>`).join(''); }
@@ -2954,8 +2959,45 @@ function renderAnexosPreview(){ anexosPreview.innerHTML = anexosTemporarios.map(
 function downloadBase64File(dataUrl, filename){ const a = document.createElement('a'); a.href = dataUrl; a.download = filename; document.body.appendChild(a); a.click(); a.remove(); }
 function openLightbox(src){ document.getElementById('lightboxImage').src = src; lightboxModal.style.display = 'flex'; }
 function formatDuration(ms){ if (!ms && ms !== 0) return '—'; const s = Math.floor(ms/1000); return `${String(Math.floor(s/3600)).padStart(2,'0')}:${String(Math.floor((s%3600)/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`; }
-function formatDenunciaTimer(d){ const e = (d.timerElapsed || 0) + (d.timerRunning && d.timerStart ? (Date.now() - d.timerStart) : 0); return (d.timerRunning || e > 0) ? formatDuration(e) : '—'; }
-let timerInterval = null; function startAllTimers(){ if (timerInterval) clearInterval(timerInterval); timerInterval = setInterval(() => denuncias.forEach(d => { if(d.timerRunning || d.timerElapsed > 0) { const el = document.getElementById(`timer-${d.id}`); if (el) el.textContent = formatDenunciaTimer(d); } }), 1000); }
+
+// ALTERADO: Lógica para exibir "Expirado"
+function formatDenunciaTimer(d){
+    const twentyFourHours = 24 * 60 * 60 * 1000;
+    const e = (d.timerElapsed || 0) + (d.timerRunning && d.timerStart ? (Date.now() - d.timerStart) : 0);
+    if (e >= twentyFourHours) {
+        return `<span style="color:var(--warning); font-weight: bold;">Expirado</span>`;
+    }
+    return (d.timerRunning || e > 0) ? formatDuration(e) : '—';
+}
+
+let timerInterval = null;
+// ALTERADO: Lógica para parar o cronômetro em 24h
+function startAllTimers(){
+    if (timerInterval) clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+        let needsSave = false;
+        const twentyFourHours = 24 * 60 * 60 * 1000;
+        denuncias.forEach(d => {
+            if (d.timerRunning) {
+                const elapsed = (d.timerElapsed || 0) + (d.timerStart ? (Date.now() - d.timerStart) : 0);
+                if (elapsed >= twentyFourHours) {
+                    d.timerRunning = false;
+                    d.timerElapsed += (Date.now() - d.timerStart); // Final update
+                    d.timerStart = null;
+                    needsSave = true;
+                }
+            }
+            if (d.timerRunning || d.timerElapsed > 0) {
+                const el = document.getElementById(`timer-${d.id}`);
+                if (el) el.innerHTML = formatDenunciaTimer(d);
+            }
+        });
+        if (needsSave) {
+            localStorage.setItem('denuncias', JSON.stringify(denuncias));
+        }
+    }, 1000);
+}
+
 function initHistorico(){ historyList.innerHTML = historico.slice(0,5).map(evento => createHistoryItemHtml(evento)).join(''); }
 function initFullHistorico(){ fullHistoryList.innerHTML = historico.map(evento => createHistoryItemHtml(evento)).join(''); }
 function createHistoryItemHtml(evento) { const icons={'login':'fa-sign-in-alt','logout':'fa-sign-out-alt','denuncia':'fa-exclamation-circle','ficha':'fa-user-edit','anotacao':'fa-sticky-note','agenda':'fa-calendar-alt','config':'fa-cog'}; return `<div class="history-item"><div class="history-icon"><i class="fas ${icons[evento.tipo] || 'fa-info-circle'}"></i></div><div class="history-content"><div class="history-title">${evento.mensagem}</div><div class="history-time">${new Date(evento.timestamp).toLocaleString('pt-BR')} • Por ${evento.usuario}</div></div></div>`; }
@@ -2972,7 +3014,7 @@ function initTagsList(){ const list = document.getElementById('tagsManagementLis
 async function handleBackgroundUpload(e){ const file = e.target.files[0]; if (!file) return; const b = await fileToBase64(file); document.documentElement.style.setProperty('--denuncias-bg', `url('${b.data}')`); localStorage.setItem('denunciasBackground', b.data); bgPreview.innerHTML = `<div class="anexo-item"><img src="${b.data}"></div>`; showToast('Background aplicado','success'); }
 function loadBackground(){ const data = localStorage.getItem('denunciasBackground'); if (data) { document.documentElement.style.setProperty('--denuncias-bg', `url('${data}')`); bgPreview.innerHTML = `<div class="anexo-item"><img src="${data}"></div>`; } }
 document.getElementById('restoreBgBtn').addEventListener('click', ()=>{ localStorage.removeItem('denunciasBackground'); document.documentElement.style.setProperty('--denuncias-bg','none'); bgPreview.innerHTML = ''; });
-function initSettings() { themeSelect.addEventListener('change', handleThemeChange); document.getElementById('applyCustomThemeBtn').addEventListener('click', applyAndSaveCustomTheme); document.getElementById('downloadBackupBtn').addEventListener('click', downloadBackup); document.getElementById('importBackupBtn').addEventListener('click', () => document.getElementById('importBackupInput').click()); document.getElementById('importBackupInput').addEventListener('change', importBackup); exportExcelBtn.addEventListener('click', exportDenunciasToCSV); loadSelectedTheme(); } // MODIFICADO
+function initSettings() { themeSelect.addEventListener('change', handleThemeChange); document.getElementById('applyCustomThemeBtn').addEventListener('click', applyAndSaveCustomTheme); document.getElementById('downloadBackupBtn').addEventListener('click', downloadBackup); document.getElementById('importBackupBtn').addEventListener('click', () => document.getElementById('importBackupInput').click()); document.getElementById('importBackupInput').addEventListener('change', importBackup); exportPdfBtn.addEventListener('click', exportDenunciasToPDF); loadSelectedTheme(); } // ALTERADO
 function handleThemeChange() { const theme = themeSelect.value; const customThemeContainer = document.getElementById('customThemeContainer'); document.documentElement.removeAttribute('data-theme'); document.documentElement.style.cssText = ''; if (theme === 'custom') { customThemeContainer.style.display = 'block'; loadCustomTheme(); } else { customThemeContainer.style.display = 'none'; if (theme !== 'blue') document.documentElement.setAttribute('data-theme', theme); localStorage.setItem('selectedTheme', theme); localStorage.removeItem('customTheme'); } }
 function applyAndSaveCustomTheme() { const colors = { primary: document.getElementById('primaryColor').value, bg: document.getElementById('backgroundColor').value, text: document.getElementById('textColor').value, cardBg: document.getElementById('cardColor').value }; localStorage.setItem('customTheme', JSON.stringify(colors)); localStorage.setItem('selectedTheme', 'custom'); applyCustomCss(colors); showToast('Tema personalizado aplicado!', 'success'); }
 function loadCustomTheme() { const savedTheme = JSON.parse(localStorage.getItem('customTheme') || 'null'); if (savedTheme) { document.getElementById('primaryColor').value = savedTheme.primary; document.getElementById('backgroundColor').value = savedTheme.bg; document.getElementById('textColor').value = savedTheme.text; document.getElementById('cardColor').value = savedTheme.cardBg; applyCustomCss(savedTheme); } }
@@ -2980,14 +3022,41 @@ function applyCustomCss(colors) { document.documentElement.style.setProperty('--
 function loadSelectedTheme(){ const s = localStorage.getItem('selectedTheme') || 'blue'; themeSelect.value = s; handleThemeChange(); }
 function downloadBackup() { const data = { denuncias, fichas, historico, tags, topicos, agenda, anotacoes, settings: { theme: localStorage.getItem('selectedTheme'), customTheme: JSON.parse(localStorage.getItem('customTheme')||'null'), background: localStorage.getItem('denunciasBackground') }}; const a = document.createElement('a'); a.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2)); a.download = `staff_portal_backup_${new Date().toISOString().slice(0, 10)}.json`; a.click(); }
 function importBackup(e) { const file = e.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = function(e) { try { const data = JSON.parse(e.target.result); if (confirm('Importar backup? Todos os dados atuais serão substituídos.')) { Object.keys(data).forEach(key => localStorage.setItem(key, JSON.stringify(data[key]))); if(data.settings) Object.keys(data.settings).forEach(key => localStorage.setItem(key, data.settings[key])); showToast('Backup importado! A página será recarregada.', 'success'); setTimeout(() => location.reload(), 1500); } } catch (err) { showToast('Erro ao ler o backup.', 'error'); } }; reader.readAsText(file); e.target.value = ''; }
-function openDenunciaModal(){ editingDenunciaId = null; document.getElementById('denunciaModalTitle').textContent = 'Nova Denúncia'; resetDenunciaForm(); initTagsUI(); initVincularPlayerOptions(); denunciaModal.style.display = 'flex'; }
+
+// ALTERADO: A função agora aceita um topicId opcional
+function openDenunciaModal(topicId){
+    editingDenunciaId = null;
+    newDenunciaTopicId = topicId || 1; // Define o tópico alvo
+    document.getElementById('denunciaModalTitle').textContent = 'Nova Denúncia';
+    resetDenunciaForm();
+    initTagsUI();
+    initVincularPlayerOptions();
+    denunciaModal.style.display = 'flex';
+}
+
 function openFichaModal(){ editingFichaId = null; fichaModal.querySelector('form')?.reset(); strikesCount.textContent = currentStrikes = 0; orientacoesCount.textContent = currentOrientacoes = 0; fichaModal.style.display = 'flex'; }
-newDenunciaBtn.addEventListener('click', openDenunciaModal); newDenunciaBoardBtn.addEventListener('click', openDenunciaModal); newFichaBtn.addEventListener('click', openFichaModal); newFichaBoardBtn.addEventListener('click', openFichaModal);
-document.querySelectorAll('.modal [data-action="close"]').forEach(btn => btn.addEventListener('click', e => e.currentTarget.closest('.modal').style.display = 'none'));
+newDenunciaBtn.addEventListener('click', () => openDenunciaModal()); newDenunciaBoardBtn.addEventListener('click', () => openDenunciaModal()); newFichaBtn.addEventListener('click', openFichaModal); newFichaBoardBtn.addEventListener('click', openFichaModal);
+
+// ALTERADO: Lógica de fechamento de modais
+document.querySelectorAll('.modal:not(#denunciaModal) [data-action="close"]').forEach(btn => btn.addEventListener('click', e => e.currentTarget.closest('.modal').style.display = 'none'));
+document.querySelectorAll('#denunciaModal [data-action="close"]').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const titulo = document.getElementById('denunciaTitulo').value.trim();
+        // Se estiver editando ou se houver um título, tenta salvar
+        if (editingDenunciaId || titulo) {
+            saveDenunciaBtn.click();
+        } else {
+            // Se for nova e sem título, apenas fecha
+            resetDenunciaForm();
+            denunciaModal.style.display = 'none';
+        }
+    });
+});
+
 window.addEventListener('click', e => { if (e.target.classList.contains('modal')) e.target.style.display = 'none'; });
 document.addEventListener('keydown', e => { if (e.key === 'Escape') document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); });
 document.addEventListener('click', e => { if (!e.target.closest('.card-actions')) document.querySelectorAll('.actions-dropdown').forEach(d => d.classList.remove('active')); });
-searchSteamBtn.addEventListener('click', ()=> window.open(`https://steamid.xyz/${document.getElementById('steamId').value.trim()}`, '_blank')); // MODIFICADO
+searchSteamBtn.addEventListener('click', ()=> window.open(`https://steamid.xyz/${document.getElementById('steamId').value.trim()}`, '_blank'));
 refreshBtn.addEventListener('click', ()=> location.reload());
 [printsUpload, replaysUpload, bgUpload].forEach(el => { el.addEventListener('click', () => el.querySelector('input').click()); el.addEventListener('dragover', e => { e.preventDefault(); el.style.borderColor = 'var(--primary)'; }); el.addEventListener('dragleave', e => el.style.borderColor = 'var(--border)'); el.addEventListener('drop', e => { e.preventDefault(); el.style.borderColor = 'var(--border)'; el.querySelector('input').files = e.dataTransfer.files; el.querySelector('input').dispatchEvent(new Event('change')); }); });
 printsInput.addEventListener('change', (e) => handleAnexosUpload(e, 'image')); replaysInput.addEventListener('change', (e) => handleAnexosUpload(e, 'replay')); bgInput.addEventListener('change', handleBackgroundUpload);
@@ -2999,8 +3068,8 @@ document.addEventListener("click", closeAllSelect);
 document.addEventListener('DOMContentLoaded', init);
 function init(){ checkLogin(); }
 
-// NOVO: Função para exportar CSV
-function exportDenunciasToCSV() {
+// NOVO: Função para exportar para PDF
+function exportDenunciasToPDF() {
     const monthYear = reportMonthInput.value;
     if (!monthYear) {
         showToast('Por favor, selecione um mês para o relatório.', 'error');
@@ -3008,19 +3077,11 @@ function exportDenunciasToCSV() {
     }
 
     const [year, month] = monthYear.split('-').map(Number);
-    const startDate = new Date(year, month - 1, 1);
-    const endDate = new Date(year, month, 0, 23, 59, 59);
-
-    const finalizadasTopic = topicos.find(t => t.titulo.toLowerCase().includes('finalizadas'));
-    if (!finalizadasTopic) {
-        showToast('Tópico de "denuncias finalizadas" não encontrado.', 'error');
-        return;
-    }
-
+    
     const filteredDenuncias = denuncias.filter(d => {
-        if (d.dataFinalizacao) { // Check dataFinalizacao directly
+        if (d.dataFinalizacao) {
             const finalizacaoDate = new Date(d.dataFinalizacao);
-            return finalizacaoDate >= startDate && finalizacaoDate <= endDate;
+            return finalizacaoDate.getFullYear() === year && finalizacaoDate.getMonth() === month - 1;
         }
         return false;
     });
@@ -3030,43 +3091,63 @@ function exportDenunciasToCSV() {
         return;
     }
 
-    // Função auxiliar para escapar caracteres no CSV
-    const escapeCSV = (str) => {
-        if (typeof str !== 'string') str = String(str || '');
-        if (str.includes(',') || str.includes('"') || str.includes('\n')) {
-            return `"${str.replace(/"/g, '""')}"`;
-        }
-        return str;
-    };
+    let pdfHtml = `
+    <!DOCTYPE html>
+    <html lang="pt-BR">
+    <head>
+        <meta charset="UTF-8">
+        <title>Relatório de Denúncias - ${monthYear}</title>
+        <style>
+            body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; margin: 25px; color: #333; }
+            @media print { body { margin: 0; } .no-print { display: none; } }
+            h1 { text-align: center; border-bottom: 2px solid #eee; padding-bottom: 15px; margin-bottom: 25px; color: #111; }
+            .denuncia-card {
+                border: 1px solid #ddd;
+                border-radius: 8px;
+                padding: 20px;
+                margin-bottom: 20px;
+                page-break-inside: avoid;
+                background-color: #f9f9f9;
+            }
+            .denuncia-card h2 { margin-top: 0; font-size: 1.3em; color: #000; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 15px; }
+            .field { margin-bottom: 10px; line-height: 1.5; }
+            .field strong { display: inline-block; width: 160px; color: #555; }
+            .description { margin-top: 15px; padding-top: 15px; border-top: 1px solid #eee; }
+        </style>
+    </head>
+    <body>
+        <h1>Relatório de Denúncias Finalizadas (${month.toString().padStart(2, '0')}/${year})</h1>
+    `;
 
-    const headers = ['ID', 'Titulo', 'Player Principal', 'Steam ID', 'Discord ID', 'Denunciante', 'Data Criacao', 'Data Finalizacao', 'Descricao'];
-    const csvContent = [
-        headers.join(','),
-        ...filteredDenuncias.map(d => [
-            d.id,
-            d.titulo,
-            d.playerName,
-            d.steamId,
-            d.discordId,
-            d.reporterName,
-            new Date(d.dataCriacao).toLocaleString('pt-BR'),
-            new Date(d.dataFinalizacao).toLocaleString('pt-BR'),
-            d.descricao
-        ].map(escapeCSV).join(','))
-    ].join('\n');
+    filteredDenuncias.forEach(d => {
+        const escapeHtml = (unsafe) => unsafe.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        pdfHtml += `
+        <div class="denuncia-card">
+            <h2>${escapeHtml(d.titulo || 'Denúncia Sem Título')} (ID: ${d.id})</h2>
+            <div class="field"><strong>Player Principal:</strong> ${escapeHtml(d.playerName || 'N/A')}</div>
+            <div class="field"><strong>Steam ID:</strong> ${escapeHtml(d.steamId || 'N/A')}</div>
+            <div class="field"><strong>Discord ID:</strong> ${escapeHtml(d.discordId || 'N/A')}</div>
+            <div class="field"><strong>Denunciante:</strong> ${escapeHtml(d.reporterName || 'N/A')}</div>
+            <div class="field"><strong>Data de Criação:</strong> ${new Date(d.dataCriacao).toLocaleString('pt-BR')}</div>
+            <div class="field"><strong>Data de Finalização:</strong> ${new Date(d.dataFinalizacao).toLocaleString('pt-BR')}</div>
+            <div class="description">
+                <strong>Descrição:</strong>
+                <p>${(escapeHtml(d.descricao || '')).replace(/\n/g, '<br>')}</p>
+            </div>
+        </div>
+        `;
+    });
 
-    const blob = new Blob([`\uFEFF${csvContent}`], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    if (link.download !== undefined) {
-        const url = URL.createObjectURL(blob);
-        link.setAttribute('href', url);
-        link.setAttribute('download', `relatorio_denuncias_${monthYear}.csv`);
-        link.style.visibility = 'hidden';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        showToast('Relatório gerado com sucesso!', 'success');
-    }
+    pdfHtml += `</body></html>`;
+
+    const pdfWindow = window.open('', '_blank');
+    pdfWindow.document.write(pdfHtml);
+    pdfWindow.document.close();
+    pdfWindow.focus();
+    setTimeout(() => { 
+        pdfWindow.print();
+    }, 500); // Um pequeno atraso para garantir que o conteúdo seja renderizado antes de imprimir
+    showToast('Relatório gerado para impressão em PDF!', 'success');
 }
 
 init();
