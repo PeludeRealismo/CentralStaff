@@ -2476,7 +2476,8 @@ saveDenunciaBtn.addEventListener('click', () => {
         }
 
         const nova = {
-            id: Date.now(), titulo, steamId, discordId, playerName, reporterName, descricao,
+            id: Date.now() + Math.random(), // <-- PONTO DA CORREÇÃO
+            titulo, steamId, discordId, playerName, reporterName, descricao,
             anexos: anexosTemporarios.slice(), playersVinculados, tags: selectedTags,
             topico: newDenunciaTopicId, // ALTERADO: Usa o tópico selecionado
             dataCriacao: new Date().toISOString(), dataMovimento: null, dataFinalizacao: null,
