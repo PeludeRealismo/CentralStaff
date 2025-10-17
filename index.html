@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js"></script>
     
-    <!-- CSS externo - todas as correções aplicadas -->
     <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
@@ -996,7 +995,7 @@ function getOrCreateFicha(steamId, discordId, playerName) {
    Save / Edit Denúncia
    ========================= */
 saveDenunciaBtn.addEventListener('click', () => {
-    const titulo = document.getElementById('denunciaTitulo').value.trim();
+    let titulo = document.getElementById('denunciaTitulo').value.trim();
     const steamId = document.getElementById('steamId').value.trim();
     const discordId = document.getElementById('discordId').value.trim();
     const playerName = document.getElementById('playerName').value.trim();
@@ -1007,11 +1006,13 @@ saveDenunciaBtn.addEventListener('click', () => {
     const selectedTagEls = Array.from(tagsContainer.querySelectorAll('.tag-item.selected'));
     const selectedTags = selectedTagEls.map(el => tags.find(t=>t.id===Number(el.dataset.id))).filter(Boolean);
 
-    // ALTERADO: A validação agora requer apenas o Título.
+    // ========= INÍCIO DA IMPLEMENTAÇÃO =========
+    // Garante que a denúncia sempre seja salva, mesmo sem título.
     if (!titulo){
-        showToast('Preencha pelo menos o campo Título.', 'error');
-        return;
+        titulo = 'Denúncia Sem Título';
+        showToast('Denúncia salva com um título padrão.', 'info');
     }
+    // ========= FIM DA IMPLEMENTAÇÃO =========
 
     if (editingDenunciaId){
         const d = denuncias.find(x => x.id === editingDenunciaId);
@@ -1032,7 +1033,6 @@ saveDenunciaBtn.addEventListener('click', () => {
             }
         }
 
-        // CORRIGIDO: Geração de ID mais robusta para evitar duplicações
         let newId = Date.now();
         while (denuncias.some(d => d.id === newId)) {
             newId++;
@@ -1042,27 +1042,25 @@ saveDenunciaBtn.addEventListener('click', () => {
             id: newId,
             titulo, steamId, discordId, playerName, reporterName, descricao,
             anexos: anexosTemporarios.slice(), playersVinculados, tags: selectedTags,
-            topico: newDenunciaTopicId, // ALTERADO: Usa o tópico selecionado
+            topico: newDenunciaTopicId,
             dataCriacao: new Date().toISOString(), dataMovimento: null, dataFinalizacao: null,
             timerRunning: !!startTimer, timerStart: startTimer ? Date.now() : null, timerElapsed: 0
         };
         denuncias.push(nova);
         addToHistorico('denuncia', `Nova denúncia criada: ${nova.titulo}`);
         showToast('Denúncia criada','success');
-        console.log('Denúncia salva:', nova); // Log para debug
+        console.log('Denúncia salva:', nova);
     }
 
     localStorage.setItem('denuncias', JSON.stringify(denuncias));
-    console.log('Total de denúncias no localStorage:', denuncias.length); // Log para debug
+    console.log('Total de denúncias no localStorage:', denuncias.length);
     
-    // NOVO: Limpa o progresso salvo após salvar com sucesso
     clearDenunciaProgress();
     
     resetDenunciaForm();
     denunciaModal.style.display = 'none';
     editingDenunciaId = null;
     
-    // CORRIGIDO: Recarrega as denúncias do localStorage antes de renderizar
     denuncias = JSON.parse(localStorage.getItem('denuncias')) || [];
     
     initDenunciasBoard();
