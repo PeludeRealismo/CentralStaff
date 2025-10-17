@@ -6,1455 +6,9 @@
     <title>Staff Portal - The Isle Prelude Realismo</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js"></script>
-
-    <style>
-        :root {
-            --primary: #1a73e8;
-            --primary-dark: #0d47a1;
-            --secondary: #4285f4;
-            --accent: #2962ff;
-            --text: #202124;
-            --text-light: #5f6368;
-            --bg: #f8f9fa;
-            --card-bg: #ffffff;
-            --border: #dadce0;
-            --success: #0f9d58;
-            --warning: #f4b400;
-            --danger: #db4437;
-            --info: #4285f4;
-            --shadow: 0 4px 15px rgba(0,0,0,0.08); /* Sombra mais suave */
-            --transition: all 0.35s cubic-bezier(0.25, 0.8, 0.25, 1); /* Transição mais suave */
-            --denuncias-bg: none;
-            --glow: 0 0 5px rgba(26,115,232,0.4);
-        }
-
-        /* Tema Escuro - Efeito "Staff de Jogo / Sombrio" Aprimorado */
-        [data-theme="dark"] {
-            --primary: #5e96f7; /* Azul claro para contraste */
-            --primary-dark: #2d65d4;
-            --secondary: #669df6;
-            --accent: #5e96f7;
-            --text: #e8eaed;
-            --text-light: #bdc1c6;
-            --bg: #1f2022; /* Fundo mais escuro */
-            --card-bg: #2d2e31; /* Card com profundidade */
-            --border: #4a4b4f;
-            --shadow: 0 6px 20px rgba(0,0,0,0.5), 0 0 10px rgba(94, 150, 247, 0.1); /* Sombra e leve brilho azul */
-            --glow: 0 0 8px rgba(94, 150, 247, 0.5);
-        }
-
-        /* Tema Verde - Aprimorado */
-        [data-theme="green"] {
-            --primary: #0f9d58;
-            --primary-dark: #0b8043;
-            --secondary: #4285f4;
-            --accent: #00c853;
-            --text: #202124;
-            --text-light: #5f6368;
-            --bg: #e8f5e9;
-            --card-bg: #ffffff;
-            --border: #c8e6c9;
-            --shadow: 0 4px 15px rgba(0,0,0,0.08);
-            --glow: 0 0 5px rgba(15, 157, 88, 0.4);
-        }
-
-        /* Tema Vermelho/Preto - Aprimorado */
-        [data-theme="red-black"] {
-            --primary: #ff5252; /* Vermelho mais vibrante */
-            --primary-dark: #c62828;
-            --secondary: #f44336;
-            --accent: #ff5252;
-            --text: #f5f5f5;
-            --text-light: #e0e0e0;
-            --bg: #121212;
-            --card-bg: #212121; /* Card mais escuro */
-            --border: #424242;
-            --shadow: 0 6px 20px rgba(0,0,0,0.6), 0 0 10px rgba(255, 82, 82, 0.2);
-            --glow: 0 0 8px rgba(255, 82, 82, 0.5);
-        }
-
-        /* Novos temas adicionados - Aprimorados com o efeito GLOW */
-        [data-theme="neon-azul"] {
-            --primary: #00d4ff;
-            --primary-dark: #00a4cc;
-            --text: #e9faff;
-            --text-light: #bfeefc;
-            --bg: #041923;
-            --card-bg: #052733;
-            --border: #064351;
-            --shadow: 0 0 20px rgba(0,212,255,0.3);
-            --glow: 0 0 12px rgba(0,212,255,0.7);
-        }
-
-        [data-theme="dourado-preto"] {
-            --primary: #d4af37;
-            --primary-dark: #a67c1a;
-            --text: #fff9ec;
-            --text-light: #f0e6c8;
-            --bg: #070707;
-            --card-bg: #111111;
-            --border: #40331a;
-            --shadow: 0 0 15px rgba(212,175,55,0.2);
-            --glow: 0 0 8px rgba(212,175,55,0.5);
-        }
-
-        [data-theme="roxo-neon"] {
-            --primary: #9b59ff;
-            --primary-dark: #7a3df2;
-            --text: #f6efff;
-            --text-light: #dfd3ff;
-            --bg: #0b031a;
-            --card-bg: #120723;
-            --border: #4b2b67;
-            --shadow: 0 0 20px rgba(155, 89, 255, 0.3);
-            --glow: 0 0 12px rgba(155, 89, 255, 0.7);
-        }
-
-        [data-theme="roxo"] {
-            --primary: #6a1b9a;
-            --primary-dark: #4a0072;
-            --text: #1a082a;
-            --text-light: #4c4059;
-            --bg: #f6f0fa;
-            --card-bg: #ffffff;
-            --border: #e4d7f0;
-        }
-
-        [data-theme="amarelo"] {
-            --primary: #f4c430;
-            --primary-dark: #caa10a;
-            --text: #2b2b2b;
-            --text-light: #6b5b1d;
-            --bg: #fffbea;
-            --card-bg: #fff;
-            --border: #ffeaa7;
-        }
-
-        [data-theme="verde-agua"] {
-            --primary: #2ad6c6;
-            --primary-dark: #1aa79a;
-            --text: #083033;
-            --text-light: #3a7f79;
-            --bg: #effffb;
-            --card-bg: #ffffff;
-            --border: #cff7f2;
-        }
-
-        [data-theme="preto-branco"] {
-            --primary: #000000;
-            --primary-dark: #222222;
-            --text: #ffffff;
-            --text-light: #cfcfcf;
-            --bg: #0f0f0f;
-            --card-bg: #1a1a1a;
-            --border: #2a2a2a;
-            --shadow: 0 4px 15px rgba(255,255,255,0.1);
-        }
-
-        * { 
-            margin:0; 
-            padding:0; 
-            box-sizing:border-box; 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            transition: var(--transition); 
-        }
-        body {
-            background-color: var(--bg);
-            color: var(--text);
-            min-height: 100vh;
-            display:flex; 
-            flex-direction:column;
-            line-height: 1.6;
-        }
-
-        /* =========================================
-           3D Models
-           ========================================= */
-        .decorative-3d {
-            position: fixed;
-            z-index: -1;
-            opacity: 0.8;
-            pointer-events: none; /* Make it non-interactive */
-        }
-        #login-3d-model {
-            width: 500px;
-            height: 500px;
-            top: 50%;
-            left: 15%;
-            transform: translate(-50%, -50%);
-        }
-        #dashboard-3d-model {
-            width: 250px;
-            height: 250px;
-            bottom: -50px;
-            right: -30px;
-        }
-        model-viewer {
-            width: 100%;
-            height: 100%;
-            --poster-color: transparent;
-        }
-        @media (max-width: 1200px) {
-            #login-3d-model { display: none; }
-        }
-        @media (max-width: 768px) {
-            #dashboard-3d-model { display: none; }
-        }
-
-        /* =========================================
-           TOASTS
-           ========================================= */
-        .toast-container { position: fixed; top: 20px; right: 20px; z-index:9999; display:flex; flex-direction:column; gap:10px; }
-        .toast { 
-            padding:15px 20px; 
-            border-radius:10px; 
-            color:white; 
-            box-shadow:var(--shadow); 
-            display:flex; 
-            align-items:center; 
-            gap:15px; 
-            animation: slideInRight 0.4s cubic-bezier(0.25, 0.8, 0.25, 1) forwards; 
-            font-weight: 500;
-        }
-        .toast.success { background-color:var(--success); } .toast.error{ background-color:var(--danger);} .toast.info{ background-color:var(--info);}
-        @keyframes slideInRight { 
-            from {transform: translateX(120%);opacity:0;} 
-            to {transform: translateX(0);opacity:1;} 
-        }
-
-        /* =========================================
-           LOGIN SCREEN
-           ========================================= */
-        .login-container { 
-            display:flex; 
-            justify-content:center; 
-            align-items:center; 
-            min-height:100vh; 
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); 
-            padding:20px;
-            position: relative;
-            overflow: hidden;
-        }
-        .login-box { 
-            background-color:var(--card-bg); 
-            border-radius:16px; 
-            box-shadow: var(--shadow); 
-            width:100%; 
-            max-width:400px; 
-            padding:40px; 
-            text-align:center;
-            animation: fadeInScale 0.6s ease-out;
-            border: 1px solid var(--border);
-            z-index: 1; /* Ensure it's above the 3D model */
-        }
-        @keyframes fadeInScale {
-            from { opacity: 0; transform: scale(0.95) translateY(10px); }
-            to { opacity: 1; transform: scale(1) translateY(0); }
-        }
-        .login-logo{ 
-            margin-bottom:15px; 
-            color:var(--primary); 
-            font-size:3.5rem;
-            text-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        .login-title{ 
-            font-size:2rem; 
-            margin-bottom:5px; 
-            color:var(--text); 
-            font-weight: 700;
-        }
-        .login-subtitle {
-            color: var(--text-light);
-            margin-bottom: 25px;
-            font-weight: 300;
-        }
-        .input-group{ margin-bottom:20px; text-align:left;}
-        .input-group label{ 
-            display:block; 
-            margin-bottom:6px; 
-            color:var(--text-light); 
-            font-weight:600;
-            font-size: 0.9rem;
-        }
-        .input-group input{ 
-            width:100%; 
-            padding:14px 18px; 
-            border:1px solid var(--border); 
-            border-radius:8px; 
-            background-color:var(--bg); /* Fundo sutil */
-            color:var(--text); 
-            font-size:1rem;
-            box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
-        }
-        .input-group input:focus {
-            border-color: var(--primary);
-            box-shadow: var(--glow), inset 0 1px 3px rgba(0,0,0,0.05);
-            outline: none;
-        }
-        .btn{ 
-            display:inline-block; 
-            padding:12px 28px; 
-            background-color:var(--primary); 
-            color:white; 
-            border:none; 
-            border-radius:8px; 
-            cursor:pointer; 
-            font-size:1.05rem; 
-            font-weight:600;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-            position: relative;
-            overflow: hidden;
-            z-index: 1;
-        }
-        .btn:hover{ 
-            background-color:var(--primary-dark); 
-            transform: translateY(-3px); 
-            box-shadow: 0 6px 15px rgba(0,0,0,0.3);
-            z-index: 2;
-        }
-        .btn:active {
-            transform: translateY(0);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
-        .btn-block{ width:100%; } 
-        .btn-sm{ padding:8px 15px; font-size:0.85rem; border-radius:6px; }
-        .alert { 
-            padding:15px 20px; 
-            border-radius:8px; 
-            margin-bottom:25px; 
-            display:none;
-            font-weight: 500;
-        }
-        .alert-error { 
-            background-color:#ffebee; 
-            color:#c62828; 
-            border:1px solid #ef9a9a; 
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        [data-theme="dark"] .alert-error { 
-            background-color: #3b2a2a; 
-            color: #ff8a80; 
-            border-color: #c62828;
-        }
-
-        /* =========================================
-           APP LAYOUT & HEADER
-           ========================================= */
-        .app-container{ display:none; flex-direction:column; min-height:100vh; }
-        .header{ 
-            background-color:var(--card-bg); 
-            box-shadow:var(--shadow); 
-            padding:15px 30px; 
-            display:flex; 
-            justify-content:space-between; 
-            align-items:center; 
-            position:sticky; 
-            top:0; 
-            z-index:100;
-            border-bottom: 1px solid var(--border);
-        }
-        .logo{ 
-            font-size:2rem; 
-            color:var(--primary); 
-            margin-right:15px;
-            text-shadow: var(--glow); 
-        }
-        .app-name{ 
-            font-size:1.5rem; 
-            font-weight:700; 
-            color:var(--text);
-        }
-        .header-right{ display:flex; align-items:center; gap:15px; }
-        .user-info { 
-            font-weight: 500; 
-            color: var(--text-light);
-            font-size: 0.95rem;
-        }
-
-        /* =========================================
-           NAVIGATION (TABS)
-           ========================================= */
-        .nav{ 
-            background-color:var(--card-bg); 
-            padding:0 30px; 
-            box-shadow:0 2px 5px rgba(0,0,0,0.05); 
-            border-bottom: 1px solid var(--border);
-            position: sticky;
-            top: 73px; /* Abaixo do header */
-            z-index: 90;
-        }
-        .nav-list{ 
-            display:flex; 
-            list-style:none; 
-            overflow-x:auto; 
-            scrollbar-width: none; /* Firefox */
-        }
-        .nav-list::-webkit-scrollbar { /* Chrome/Safari */
-            display: none;
-        }
-        .nav-item{ 
-            padding:18px 25px; 
-            cursor:pointer; 
-            border-bottom:3px solid transparent; 
-            font-weight:600; 
-            white-space:nowrap;
-            color: var(--text-light);
-        }
-        .nav-item:hover{
-            color: var(--primary);
-        }
-        .nav-item.active{ 
-            color:var(--primary); 
-            border-bottom-color:var(--primary);
-        }
-
-        .main-content{ 
-            flex:1; 
-            padding:30px; 
-            width: 100%;
-            margin: 0 auto;
-            position: relative; /* For 3D model positioning */
-        }
-        .tab-content{ display:none; animation: fadeIn 0.5s ease; } 
-        .tab-content.active{ display:block; }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* =========================================
-           CARDS E DASHBOARD
-           ========================================= */
-        .dashboard-grid{ display:grid; grid-template-columns: repeat(auto-fill, minmax(320px,1fr)); gap:25px; margin-bottom:30px;}
-        .card{ 
-            background-color:var(--card-bg); 
-            border-radius:12px; 
-            box-shadow:var(--shadow); 
-            padding:25px; 
-            border: 1px solid var(--border);
-            transition: var(--transition);
-        }
-        .card:hover {
-             transform: translateY(-2px);
-             box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-        }
-        .card-title{ 
-            font-size:1.3rem; 
-            margin-bottom:20px; 
-            color:var(--text); 
-            font-weight:700; 
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 10px;
-        }
-        .stat-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:20px; }
-        .stat-item{ 
-            text-align:center; 
-            padding:20px 10px; 
-            border-radius:10px; 
-            background-color: var(--bg);
-            border: 1px solid var(--border);
-        }
-        [data-theme="dark"] .stat-item {
-             background-color: rgba(94, 150, 247, 0.08); 
-             border: 1px solid rgba(94, 150, 247, 0.15);
-        }
-        .stat-value{ 
-            font-size:2.2rem; 
-            font-weight:800; 
-            color:var(--primary); 
-            margin-bottom:5px;
-            text-shadow: 0 0 5px rgba(0,0,0,0.1);
-        }
-        .stat-label{ color:var(--text-light); font-size:0.9rem; font-weight: 500;}
-
-        /* AÇÕES RÁPIDAS */
-        .quick-actions{ display:grid; grid-template-columns: repeat(auto-fill,minmax(180px,1fr)); gap:15px; margin-top:20px; }
-        .action-btn{ 
-            display:flex; 
-            flex-direction:column; 
-            align-items:center; 
-            justify-content:center; 
-            padding:25px; 
-            background-color:var(--bg); 
-            border-radius:10px; 
-            box-shadow:0 2px 8px rgba(0,0,0,0.05); 
-            cursor:pointer; 
-            transition:var(--transition); 
-            border: 1px solid var(--border);
-        }
-        [data-theme="dark"] .action-btn { background-color: #3b3c40; }
-        .action-btn:hover{ 
-            transform:translateY(-5px) scale(1.02); 
-            box-shadow:0 8px 20px rgba(0,0,0,0.12); 
-            background-color: var(--primary);
-            color: white;
-            border-color: var(--primary);
-        }
-        .action-btn:hover .action-icon,
-        .action-btn:hover .action-text {
-             color: white; 
-        }
-
-        .action-icon{ 
-            font-size:2.5rem; 
-            color:var(--primary); 
-            margin-bottom:12px;
-        }
-        .action-text{ 
-            font-weight:600; 
-            color:var(--text);
-        }
-        
-        /* STATUS DOS SERVIDORES */
-        #serverStatusContainer > div {
-            border-radius: 8px;
-            padding: 12px 15px;
-            background-color: var(--bg);
-            border: 1px solid var(--border);
-        }
-        [data-theme="dark"] #serverStatusContainer > div { background-color: #3b3c40; }
-
-        .server-status {
-            font-weight: 700 !important;
-        }
-        .server-name {
-            font-weight: 600 !important;
-        }
-        .server-players {
-            color: var(--text-light);
-        }
-
-        /* COMPROMISSOS FUTUROS */
-        .upcoming-appointment-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 0;
-            border-bottom: 1px solid var(--border);
-            font-size: 0.95rem;
-        }
-        .upcoming-appointment-item:last-child {
-            border-bottom: none;
-        }
-        .appointment-info {
-            display: flex;
-            flex-direction: column;
-        }
-        .appointment-text {
-            font-weight: 600;
-            color: var(--text);
-        }
-        .appointment-date {
-            font-weight: 600;
-            color: var(--text-light);
-            font-size: 0.85rem;
-        }
-        .vence-hoje {
-            color: var(--danger);
-            font-weight: 700;
-            font-size: 0.8rem;
-            padding: 3px 8px;
-            border-radius: 20px;
-            background-color: rgba(219, 68, 55, 0.1);
-        }
-
-
-        /* HISTÓRICO */
-        .history-list{ margin-top:20px; } 
-        .history-item{ 
-            padding:15px; 
-            border-bottom:1px solid var(--border); 
-            display:flex; 
-            align-items:center; 
-        } 
-        .history-item:hover {
-            background-color: var(--bg);
-            border-radius: 8px;
-        }
-        .history-item:last-child{ border-bottom:none; }
-        .history-icon{ 
-            margin-right:20px; 
-            color:var(--primary); 
-            font-size: 1.2rem;
-            width: 25px;
-            text-align: center;
-        } 
-        .history-content{ flex:1;} 
-        .history-title{ font-weight:600; margin-bottom:4px; font-size: 1rem;} 
-        .history-time{ font-size:0.85rem; color:var(--text-light); }
-
-        /* =========================================
-           BOARD (QUADRO DE DENÚNCIAS)
-           ========================================= */
-        #denuncias {
-            max-width: 95vw;
-            margin: 0 auto;
-        }
-        .board-header{ 
-            display:flex; 
-            justify-content:space-between; 
-            align-items:center; 
-            margin-bottom:25px; 
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 15px;
-        }
-        .board-header h2 { font-size: 1.75rem; font-weight: 700; }
-        .board-actions{ display:flex; gap:10px; flex-wrap:wrap;}
-        .board{ 
-            display:flex; 
-            overflow-x:auto; 
-            gap:20px; 
-            padding: 20px 10px;
-            min-height:600px;
-            align-items: flex-start;
-            background-color: rgba(0,0,0,0.02);
-            border-radius: 12px;
-        }
-        #denunciasBoard {
-            background-image: var(--denuncias-bg);
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-        }
-
-        [data-theme="dark"] .board { background-color: rgba(255,255,255,0.03); }
-
-        .board-column{
-            min-width:340px;
-            width: 340px;
-            background-color:var(--bg);
-            border-radius:10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            padding:15px;
-            position:relative;
-            transition: var(--transition);
-            border: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-            max-height: 80vh;
-        }
-        .column-header{ 
-            padding-bottom:15px; 
-            margin-bottom:15px; 
-            border-bottom:1px solid var(--border); 
-            display:flex; 
-            justify-content:space-between; 
-            align-items:center; 
-            cursor: default;
-        }
-        .column-title{ 
-            font-weight:700; 
-            color:var(--text); 
-            font-size: 1.1rem;
-        }
-        .column-count{ 
-            background-color:var(--primary); 
-            color:white; 
-            border-radius:50%; 
-            width:28px; 
-            height:28px; 
-            display:flex; 
-            align-items:center; 
-            justify-content:center; 
-            font-size:0.9rem;
-            font-weight: 700;
-        }
-
-        .column-cards{ 
-            min-height:100px; 
-            overflow-y: auto; 
-            padding-right: 8px; 
-            flex-grow: 1; 
-        } 
-        .column-cards::-webkit-scrollbar { width: 6px; }
-        .column-cards::-webkit-scrollbar-thumb { background-color: var(--border); border-radius: 3px; }
-        .column-cards::-webkit-scrollbar-track { background-color: transparent; }
-        [data-theme="dark"] .column-cards::-webkit-scrollbar-thumb { background-color: #5e96f7; }
-
-
-        .card-item{ 
-            background-color:var(--card-bg); 
-            border-radius:10px; 
-            padding:18px; 
-            margin-bottom:15px; 
-            box-shadow:var(--shadow); 
-            cursor:grab; 
-            position:relative; 
-            border-left: 4px solid var(--border);
-            transition: var(--transition);
-        }
-        .card-item.dragging-card {
-            opacity: 0.5;
-            transform: rotate(3deg);
-        }
-        .card-item:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
-            border-left-color: var(--primary);
-        }
-
-        .card-actions{ 
-            position:absolute; 
-            top:10px; 
-            right:10px; 
-            display:flex; 
-            gap:5px;
-            background-color: var(--card-bg);
-            padding: 4px;
-            border-radius: 20px;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
-        }
-        .card-action-btn{ 
-            background:var(--bg); 
-            border:1px solid var(--border); 
-            border-radius:50%; 
-            width:28px; 
-            height:28px; 
-            display:flex; 
-            align-items:center; 
-            justify-content:center; 
-            cursor:pointer; 
-            font-size:0.8rem; 
-            color:var(--text-light);
-        }
-        [data-theme="dark"] .card-action-btn { background: #3b3c40; }
-        .card-action-btn:hover { background-color: var(--primary); color: white; transform: scale(1.1); }
-
-
-        .card-tags{ display:flex; gap:8px; margin-bottom:10px; flex-wrap:wrap; }
-        .card-tag{ 
-            padding:4px 10px; 
-            border-radius:20px; 
-            font-size:0.75rem; 
-            font-weight:600; 
-            color:#fff; 
-        }
-
-        .card-content{ margin-bottom:12px; }
-        .card-title{ font-weight:700; margin-bottom:5px; font-size:1.1rem; color: var(--text);}
-        .card-desc{ font-size:0.95rem; color:var(--text-light); display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
-        .card-footer{ display:flex; justify-content:space-between; align-items:center; font-size:0.85rem; color:var(--text-light); border-top: 1px solid var(--border); padding-top: 8px; margin-top: 8px;}
-        .card-timer{ display:flex; align-items:center; gap:5px; font-weight:700; color:var(--danger); }
-        [data-theme="dark"] .card-timer { color: #ff8a80; }
-        
-        /* Dropdown do Botão de 3 Pontos */
-        .actions-dropdown {
-            position: absolute;
-            top: 35px;
-            right: 0px;
-            background-color: var(--card-bg);
-            border-radius: 8px;
-            box-shadow: var(--shadow);
-            z-index: 10;
-            min-width: 170px;
-            overflow: hidden;
-            display: none;
-            border: 1px solid var(--border);
-        }
-        .actions-dropdown.active {
-            display: block;
-            animation: fadeInScaleUp 0.2s ease-out forwards;
-        }
-        @keyframes fadeInScaleUp {
-            from { opacity: 0; transform: scale(0.95) translateY(-5px); }
-            to { opacity: 1; transform: scale(1) translateY(0); }
-        }
-
-        .actions-dropdown button {
-            display: flex;
-            align-items: center;
-            width: 100%;
-            padding: 12px 15px;
-            background: none;
-            border: none;
-            text-align: left;
-            color: var(--text);
-            cursor: pointer;
-            font-size: 0.95rem;
-            font-weight: 500;
-        }
-        .actions-dropdown button:hover {
-            background-color: var(--bg);
-            color: var(--primary);
-        }
-        .actions-dropdown button i {
-            margin-right: 10px;
-            width: 16px;
-        }
-
-        /* =========================================
-           MODAIS
-           ========================================= */
-        .modal{ 
-            display:none; 
-            position:fixed; 
-            top:0; 
-            left:0; 
-            width:100%; 
-            height:100%; 
-            background-color:rgba(0,0,0,0.6); 
-            z-index:1000; 
-            justify-content:center; 
-            align-items:center; 
-            padding: 20px;
-        }
-        .modal-content{ 
-            background-color:var(--card-bg); 
-            border-radius:12px; 
-            width:100%; 
-            max-width:900px; 
-            max-height:95vh; 
-            overflow-y:auto; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            animation: modalFadeIn 0.3s ease-out;
-            border: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-        }
-        @keyframes modalFadeIn {
-             from { opacity: 0; transform: scale(0.98); }
-             to { opacity: 1; transform: scale(1); }
-        }
-
-        .modal-header{ 
-            padding:20px 30px; 
-            border-bottom:1px solid var(--border); 
-            display:flex; 
-            justify-content:space-between; 
-            align-items:center; 
-        }
-        .modal-title{ 
-            font-size:1.6rem; 
-            font-weight:700; 
-            color: var(--text);
-        }
-        .modal-close{ 
-            background:none; 
-            border:none; 
-            font-size:1.8rem; 
-            cursor:pointer; 
-            color:var(--text-light);
-            border-radius: 50%;
-            width: 36px;
-            height: 36px;
-            line-height: 36px;
-        }
-        .modal-close:hover { 
-            color: var(--danger); 
-            background-color: rgba(219, 68, 55, 0.1); 
-        }
-
-        .modal-body{ padding:30px; overflow-y: auto; }
-        .modal-footer{ 
-            padding:20px 30px; 
-            border-top:1px solid var(--border); 
-            display:flex; 
-            justify-content:flex-end; 
-            gap:10px; 
-            background-color: var(--bg);
-        }
-
-        .form-group{ margin-bottom:20px; }
-        .form-group label{ 
-            display:block; 
-            margin-bottom:8px; 
-            font-weight:600;
-            font-size: 0.95rem;
-            color: var(--text-light);
-        }
-        .form-group input, .form-group textarea, .form-group select { 
-            width:100%; 
-            padding:12px 15px; 
-            border:1px solid var(--border); 
-            border-radius:8px; 
-            background-color:var(--bg); 
-            color:var(--text); 
-            font-size:1rem; 
-        }
-        .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
-            border-color: var(--primary);
-            box-shadow: var(--glow);
-            outline: none;
-        }
-
-        .form-group textarea { min-height:120px; resize:vertical; }
-        
-        .file-upload{ 
-            border:2px dashed var(--border); 
-            border-radius:10px; 
-            padding:30px; 
-            text-align:center; 
-            cursor:pointer; 
-            margin-bottom:15px;
-        }
-        .file-upload:hover{ 
-            border-color:var(--primary); 
-            background-color: var(--bg);
-        }
-        .file-upload i { font-size:2.5rem; color:var(--text-light); margin-bottom:10px; }
-        .file-upload p { color: var(--text-light); }
-
-        .tags-container{ display:flex; gap:10px; flex-wrap:wrap; margin-bottom:15px; }
-        .tag-item{ 
-            display:flex; 
-            align-items:center; 
-            gap:8px; 
-            padding:8px 15px; 
-            border-radius:25px; 
-            font-size:0.9rem; 
-            font-weight:600; 
-            cursor:pointer;
-            background-color: var(--bg);
-            border: 1px solid var(--border);
-            color: var(--text);
-        }
-        [data-theme="dark"] .tag-item { background-color: #3b3c40; }
-        .tag-item.selected, .tag-item:hover {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent);
-        }
-
-        .tag-color{ width:15px; height:15px; border-radius:50%; }
-        
-        .denuncia-details{ margin-top:10px; }
-        .detail-item{ margin-bottom:20px; padding-bottom:15px; border-bottom:1px solid var(--border); }
-        .detail-label{ font-weight:700; margin-bottom:5px; color:var(--text); }
-        .detail-value{ color:var(--text-light); }
-        
-        /* =========================================
-           FICHAS DE PLAYERS
-           ========================================= */
-        .fichas-header{ 
-            display:flex; 
-            justify-content:space-between; 
-            align-items:center; 
-            margin-bottom:25px;
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 15px; 
-        }
-        .fichas-header h2 { font-size: 1.75rem; font-weight: 700; }
-
-        .players-grid{ display:grid; grid-template-columns: repeat(auto-fill,minmax(320px,1fr)); gap:20px; }
-        .player-card{ 
-            background-color:var(--card-bg); 
-            border-radius:12px; 
-            box-shadow:var(--shadow); 
-            padding:25px; 
-            position:relative;
-            border: 1px solid var(--border);
-            transition: var(--transition);
-        }
-        .player-card:hover {
-             transform: translateY(-3px);
-             box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-             border-color: var(--primary);
-        }
-
-        .player-actions{ 
-            position:absolute; 
-            top:15px; 
-            right:15px; 
-            display:flex; 
-            gap:8px; 
-        }
-        .player-id{ font-size:0.9rem; color:var(--text-light); margin-bottom:10px; font-weight: 500;}
-        .player-name{ font-size:1.4rem; font-weight:700; margin-bottom:10px; color:var(--text); }
-        .player-behavior{ font-size:0.95rem; margin-bottom:20px; color:var(--text-light); }
-        .player-stats{ display:flex; gap:20px; border-top: 1px solid var(--border); padding-top: 15px;}
-        .stat-badge{ 
-            display:flex; 
-            flex-direction:column; 
-            align-items:center; 
-            justify-content:center; 
-            padding:12px 10px; 
-            border-radius:10px; 
-            background-color: var(--bg); 
-            min-width:80px; 
-            border: 1px solid var(--border);
-        }
-        [data-theme="dark"] .stat-badge { background-color: #3b3c40; }
-
-        .stat-badge-value{ 
-            font-size:1.8rem; 
-            font-weight:800; 
-            color:var(--primary); 
-            margin-bottom:3px;
-        }
-        .stat-badge-label{ font-size:0.75rem; color:var(--text-light); font-weight: 600; text-transform: uppercase;}
-
-        /* =========================================
-           AGENDA
-           ========================================= */
-        .calendar-header { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            margin-bottom: 20px;
-        }
-        .calendar-header h3 { 
-            font-size: 1.8rem; 
-            color: var(--text); 
-            font-weight: 700;
-        }
-        .calendar-nav button { 
-            background: none; 
-            border: 1px solid var(--border);
-            font-size: 1.2rem; 
-            cursor: pointer; 
-            color: var(--primary);
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-        }
-        .calendar-nav button:hover {
-            background: var(--bg);
-        }
-        
-        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; }
-        .calendar-day-name { 
-            text-align: center; 
-            font-weight: 700; 
-            color: var(--text-light); 
-            padding-bottom: 15px; 
-        }
-        
-        .calendar-day {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            min-height: 140px;
-            padding: 10px;
-            cursor: pointer;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-        }
-        .calendar-day:hover { 
-            border-color: var(--primary); 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05); 
-        }
-        .calendar-day.other-month { 
-            background-color: var(--bg); 
-            opacity: 0.8; 
-            pointer-events: none; /* Desativa clique */
-        }
-        .calendar-day.today .day-number { 
-            background-color: var(--primary);
-            color: white;
-            border-radius: 50%;
-            box-shadow: 0 0 10px var(--glow);
-        }
-        .day-number { 
-            font-size: 0.9rem; 
-            margin-bottom: 8px; 
-            font-weight: 700; 
-            width: 28px;
-            height: 28px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .appointments-list { font-size: 0.8rem; flex-grow: 1;}
-        .appointment-item {
-            background-color: var(--primary);
-            color: white;
-            padding: 5px 8px;
-            border-radius: 6px;
-            margin-bottom: 5px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .appointment-actions { display: none; gap: 5px; }
-        .appointment-item:hover .appointment-actions { display: flex; }
-        .appointment-actions button { 
-            background: rgba(255,255,255,0.2); 
-            border: none; 
-            color: white; 
-            cursor: pointer; 
-            border-radius: 4px; 
-            padding: 3px 6px;
-        }
-        .appointment-actions button:hover { background: rgba(255,255,255,0.4); }
-
-        /* =========================================
-           CONFIGURAÇÕES & GERENCIAR TÓPICOS
-           ========================================= */
-        #customThemeContainer { 
-            margin-top: 25px; 
-            padding-top: 25px; 
-            border-top: 1px solid var(--border); 
-        }
-        .color-picker-group { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
-        .color-picker-item label { 
-            font-weight: 600; 
-            margin-bottom: 10px;
-        }
-        .color-picker-item input[type="color"] { 
-            width: 100%; 
-            height: 50px; 
-            border: 1px solid var(--border); 
-            border-radius: 8px; 
-            cursor: pointer; 
-            padding: 4px;
-        }
-
-        .backup-section, .report-section { 
-            margin-top: 30px; 
-            padding-top: 30px; 
-            border-top: 1px solid var(--border); 
-            display: flex; 
-            gap: 15px; 
-            flex-wrap: wrap;
-        }
-        .backup-section .btn, .report-section .btn {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .topic-management-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 10px;
-            border-bottom: 1px solid var(--border);
-        }
-        .topic-management-item:last-child {
-            border-bottom: none;
-        }
-        .topic-order-controls button {
-            background: none;
-            border: 1px solid var(--border);
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            cursor: pointer;
-            margin-left: 5px;
-            color: var(--text-light);
-        }
-        .topic-order-controls button:hover {
-            background-color: var(--bg);
-            color: var(--primary);
-        }
-        .topic-order-controls button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        /* =========================================
-           ANOTAÇÕES GERAIS
-           ========================================= */
-        #notesList {
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid var(--border);
-        }
-        #notesList .form-group {
-             padding: 15px;
-             border: 1px solid var(--border);
-             border-radius: 8px;
-             margin-bottom: 15px;
-             background-color: var(--bg);
-        }
-        [data-theme="dark"] #notesList .form-group { background-color: #3b3c40; }
-
-
-        /* =========================================
-           TOGGLE SWITCH
-           ========================================= */
-        .toggle-switch-container {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 15px;
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            background-color: var(--bg);
-            margin-top: 10px;
-        }
-        [data-theme="dark"] .toggle-switch-container { background-color: #3b3c40; }
-        .toggle-switch-label {
-            font-weight: 600 !important;
-            margin-bottom: 0 !important;
-            color: var(--text);
-        }
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 50px;
-            height: 28px;
-        }
-        .switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: var(--border);
-            transition: .4s;
-            border-radius: 28px;
-        }
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 20px;
-            width: 20px;
-            left: 4px;
-            bottom: 4px;
-            background-color: white;
-            transition: .4s;
-            border-radius: 50%;
-        }
-        input:checked + .slider {
-            background-color: var(--primary);
-        }
-        input:checked + .slider:before {
-            transform: translateX(22px);
-        }
-
-        /* =========================================
-           ANEXOS PREVIEW
-           ========================================= */
-        .anexos-preview{ margin-top:15px; display:flex; flex-wrap:wrap; gap:15px; }
-        .anexo-item{ 
-            position:relative; 
-            width:90px; 
-            height:90px; 
-            border-radius:8px; 
-            overflow:hidden; 
-            border:1px solid var(--border); 
-            background:var(--card-bg); 
-            display:flex; 
-            align-items:center; 
-            justify-content:center;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
-        }
-        .anexo-item img{ 
-            width:100%; 
-            height:100%; 
-            object-fit:cover; 
-            cursor:pointer; 
-            transition: transform 0.3s ease;
-        }
-        .anexo-item img:hover { transform: scale(1.05); }
-        .anexo-item .file-icon{ 
-            display:flex; 
-            align-items:center; 
-            justify-content:center; 
-            width:100%; 
-            height:100%; 
-            background-color:var(--bg); 
-            font-size:28px; 
-            cursor:pointer;
-            color: var(--primary);
-        }
-        .anexo-remove{ 
-            position:absolute; 
-            top:4px; 
-            right:4px; 
-            background:var(--danger); 
-            color: white;
-            border:none; 
-            border-radius:50%; 
-            width:22px; 
-            height:22px; 
-            display:flex; 
-            align-items:center; 
-            justify-content:center; 
-            cursor:pointer; 
-            font-size:12px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-            opacity: 0;
-            transform: scale(0.8);
-            transition: all 0.2s ease;
-        }
-        .anexo-item:hover .anexo-remove {
-            opacity: 1;
-            transform: scale(1);
-        }
-        .anexo-remove:hover { transform: scale(1.1); background: #c62828; }
-
-        .anexos-container{ display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-top:15px; }
-
-        /* =========================================
-           CUSTOM SELECT (MOVE DENUNCIA)
-           ========================================= */
-        .custom-select-container {
-            position: relative;
-            width: 100%;
-        }
-        .custom-select-container select {
-            display: none; /* Esconde o seletor original */
-        }
-        .select-selected {
-            background-color: var(--card-bg);
-            color: var(--text);
-            padding: 12px 16px;
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            cursor: pointer;
-            position: relative;
-            user-select: none;
-        }
-        .select-selected:after {
-            position: absolute;
-            content: "";
-            top: 50%;
-            right: 15px;
-            width: 0;
-            height: 0;
-            margin-top: -3px;
-            border: 6px solid transparent;
-            border-color: var(--text-light) transparent transparent transparent;
-            transition: all 0.2s ease;
-        }
-        .select-selected.select-arrow-active:after {
-            transform: rotate(180deg);
-            margin-top: -9px;
-        }
-        .select-items {
-            position: absolute;
-            background-color: var(--card-bg);
-            top: 100%;
-            left: 0;
-            right: 0;
-            z-index: 99;
-            border: 1px solid var(--border);
-            border-top: none;
-            border-radius: 0 0 6px 6px;
-            box-shadow: var(--shadow);
-            max-height: 200px;
-            overflow-y: auto;
-        }
-        .select-hide {
-            display: none;
-        }
-        .select-items div {
-            color: var(--text);
-            padding: 12px 16px;
-            cursor: pointer;
-            border-bottom: 1px solid var(--border);
-        }
-        .select-items div:last-child {
-            border-bottom: none;
-        }
-        .select-items div:hover, .same-as-selected {
-            background-color: var(--bg);
-        }
-        [data-theme="dark"] .select-items div:hover, 
-        [data-theme="dark"] .same-as-selected {
-            background-color: rgba(255, 255, 255, 0.08);
-        }
-
-        /* =========================================
-           RESPONSIVIDADE
-           ========================================= */
-        @media (max-width:1024px){
-             .main-content { padding: 20px; }
-             .header, .nav { padding-left: 20px; padding-right: 20px; }
-        }
-        @media (max-width:768px){
-            .dashboard-grid{ grid-template-columns:1fr; }
-            .stat-grid{ grid-template-columns:1fr 1fr; }
-            .board-header, .fichas-header{ flex-direction:column; align-items:flex-start; gap:15px; }
-            .board-actions { width: 100%; }
-            .board-actions .btn { flex-grow: 1; }
-            .fichas-header .btn { width: 100%; }
-            .anexos-container{ grid-template-columns:1fr; }
-            .calendar-day { min-height: 100px; }
-            .appointment-item { font-size: 0.8rem; }
-            .backup-section { flex-direction: column; gap: 10px;}
-            .backup-section .btn { width: 100%; }
-            .login-box { padding: 30px; }
-            .modal-content { max-height: 90vh; }
-        }
-
-        /* =========================================
-           NOVO: SISTEMA DE ATIVAÇÃO DE DENÚNCIAS
-           ========================================= */
-
-        #activationContainer {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            min-height: 60vh;
-            text-align: center;
-            border: 2px dashed var(--border);
-            border-radius: 12px;
-            padding: 40px;
-            background-color: var(--bg);
-        }
-
-        #activationContainer h3 {
-            font-size: 1.5rem;
-            color: var(--text-light);
-            margin-bottom: 20px;
-        }
-        
-        #activationAnimation {
-            display: none;
-            width: 100%;
-            max-width: 600px;
-        }
-
-        #activationTerminal {
-            background-color: #111;
-            color: #0f0;
-            padding: 20px;
-            border-radius: 8px;
-            height: 200px;
-            overflow-y: auto;
-            text-align: left;
-            font-family: 'Courier New', Courier, monospace;
-            box-shadow: inset 0 0 10px #000;
-            border: 1px solid #333;
-            margin-bottom: 20px;
-        }
-
-        #activationTerminal p {
-            margin: 0 0 5px 0;
-            white-space: nowrap;
-            overflow: hidden;
-            width: 0;
-            animation: typing 1s steps(40, end) forwards;
-        }
-        
-        #progressBarContainer {
-            width: 100%;
-            height: 10px;
-            background-color: #333;
-            border-radius: 5px;
-            overflow: hidden;
-        }
-
-        #progressBar {
-            width: 0%;
-            height: 100%;
-            background-color: var(--success);
-            border-radius: 5px;
-            transition: width 2s ease-out;
-        }
-
-        @keyframes typing {
-            from { width: 0 }
-            to { width: 100% }
-        }
-    </style>
+    
+    <!-- CSS externo - todas as correções aplicadas -->
+    <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
     <div class="toast-container" id="toastContainer"></div>
@@ -1819,7 +373,10 @@
                     </div>
     
                     <div class="toggle-switch-container">
-                        <span class="toggle-switch-label">Iniciar cronômetro de 24h</span>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <i class="fas fa-clock" style="color: var(--primary);"></i>
+                            <span class="toggle-switch-label">Iniciar cronômetro de 24h</span>
+                        </div>
                         <label class="switch">
                             <input type="checkbox" id="startTimer">
                             <span class="slider"></span>
@@ -2475,8 +1032,14 @@ saveDenunciaBtn.addEventListener('click', () => {
             }
         }
 
+        // CORRIGIDO: Geração de ID mais robusta para evitar duplicações
+        let newId = Date.now();
+        while (denuncias.some(d => d.id === newId)) {
+            newId++;
+        }
+
         const nova = {
-            id: Date.now() + Math.random(), // <-- PONTO DA CORREÇÃO
+            id: newId,
             titulo, steamId, discordId, playerName, reporterName, descricao,
             anexos: anexosTemporarios.slice(), playersVinculados, tags: selectedTags,
             topico: newDenunciaTopicId, // ALTERADO: Usa o tópico selecionado
@@ -2486,12 +1049,22 @@ saveDenunciaBtn.addEventListener('click', () => {
         denuncias.push(nova);
         addToHistorico('denuncia', `Nova denúncia criada: ${nova.titulo}`);
         showToast('Denúncia criada','success');
+        console.log('Denúncia salva:', nova); // Log para debug
     }
 
     localStorage.setItem('denuncias', JSON.stringify(denuncias));
+    console.log('Total de denúncias no localStorage:', denuncias.length); // Log para debug
+    
+    // NOVO: Limpa o progresso salvo após salvar com sucesso
+    clearDenunciaProgress();
+    
     resetDenunciaForm();
     denunciaModal.style.display = 'none';
     editingDenunciaId = null;
+    
+    // CORRIGIDO: Recarrega as denúncias do localStorage antes de renderizar
+    denuncias = JSON.parse(localStorage.getItem('denuncias')) || [];
+    
     initDenunciasBoard();
     updateDashboardStats();
     startAllTimers();
@@ -2587,9 +1160,11 @@ saveAdditionalPlayerBtn.addEventListener('click', () => {
    Render Board / Drag & Drop
    ========================= */
 function initDenunciasBoard(){
+    console.log('Inicializando board com', denuncias.length, 'denúncias'); // Log para debug
     denunciasBoard.innerHTML = '';
     topicos.forEach(top => {
         const items = denuncias.filter(d => d.topico === top.id);
+        console.log(`Tópico ${top.titulo}: ${items.length} denúncias`); // Log para debug
         const col = document.createElement('div');
         col.className = 'board-column';
         col.dataset.topicoId = top.id;
@@ -2956,7 +1531,31 @@ function initTagsUI(){ tagsContainer.innerHTML = tags.map(tag => `<div class="ta
 function initVincularPlayerOptions(){ vincularPlayer.innerHTML = '<option value="">Nenhum</option>' + fichas.map(f => `<option value="${f.id}">${f.nome} (${f.steamId || 'N/A'})</option>`).join(''); }
 function fileToBase64(file){ return new Promise((res, rej)=>{ const reader = new FileReader(); reader.onload = ()=> res({ name: file.name, type: file.type, data: reader.result }); reader.onerror = rej; reader.readAsDataURL(file); }); }
 async function handleAnexosUpload(e, kind){ for (const file of e.target.files) { const obj = await fileToBase64(file); anexosTemporarios.push({ type: kind, name: obj.name, data: obj.data }); } renderAnexosPreview(); }
-function renderAnexosPreview(){ anexosPreview.innerHTML = anexosTemporarios.map((a, idx) => `<div class="anexo-item" data-index="${idx}">${a.type === 'image' ? `<img src="${a.data}" alt="${a.name}" onclick="openLightbox('${a.data}')">` : `<div class="file-icon" title="${a.name}"><i class="fas fa-file"></i></div>`}<button class="anexo-remove">&times;</button></div>`).join(''); anexosPreview.querySelectorAll('.anexo-remove').forEach(btn => btn.addEventListener('click', e => { anexosTemporarios.splice(Number(e.currentTarget.parentElement.dataset.index), 1); renderAnexosPreview(); })); }
+function renderAnexosPreview(){ 
+    anexosPreview.innerHTML = anexosTemporarios.map((a, idx) => {
+        if (a.type === 'image') {
+            return `<div class="anexo-item" data-index="${idx}">
+                <img src="${a.data}" alt="${a.name}" onclick="openLightbox('${a.data}')">
+                <button class="anexo-remove">&times;</button>
+            </div>`;
+        } else {
+            // CORRIGIDO: Arquivos .replay agora podem ser baixados
+            return `<div class="anexo-item" data-index="${idx}">
+                <div class="file-icon" title="${a.name}">
+                    <i class="fas fa-file"></i>
+                    <button class="btn btn-sm" style="margin-top:5px;" onclick="downloadBase64File('${a.data}', '${a.name}')">
+                        <i class="fas fa-download"></i> Baixar
+                    </button>
+                </div>
+                <button class="anexo-remove">&times;</button>
+            </div>`;
+        }
+    }).join(''); 
+    anexosPreview.querySelectorAll('.anexo-remove').forEach(btn => btn.addEventListener('click', e => { 
+        anexosTemporarios.splice(Number(e.currentTarget.parentElement.dataset.index), 1); 
+        renderAnexosPreview(); 
+    })); 
+}
 function downloadBase64File(dataUrl, filename){ const a = document.createElement('a'); a.href = dataUrl; a.download = filename; document.body.appendChild(a); a.click(); a.remove(); }
 function openLightbox(src){ document.getElementById('lightboxImage').src = src; lightboxModal.style.display = 'flex'; }
 function formatDuration(ms){ if (!ms && ms !== 0) return '—'; const s = Math.floor(ms/1000); return `${String(Math.floor(s/3600)).padStart(2,'0')}:${String(Math.floor((s%3600)/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`; }
@@ -3024,7 +1623,7 @@ function loadSelectedTheme(){ const s = localStorage.getItem('selectedTheme') ||
 function downloadBackup() { const data = { denuncias, fichas, historico, tags, topicos, agenda, anotacoes, settings: { theme: localStorage.getItem('selectedTheme'), customTheme: JSON.parse(localStorage.getItem('customTheme')||'null'), background: localStorage.getItem('denunciasBackground') }}; const a = document.createElement('a'); a.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2)); a.download = `staff_portal_backup_${new Date().toISOString().slice(0, 10)}.json`; a.click(); }
 function importBackup(e) { const file = e.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = function(e) { try { const data = JSON.parse(e.target.result); if (confirm('Importar backup? Todos os dados atuais serão substituídos.')) { Object.keys(data).forEach(key => localStorage.setItem(key, JSON.stringify(data[key]))); if(data.settings) Object.keys(data.settings).forEach(key => localStorage.setItem(key, data.settings[key])); showToast('Backup importado! A página será recarregada.', 'success'); setTimeout(() => location.reload(), 1500); } } catch (err) { showToast('Erro ao ler o backup.', 'error'); } }; reader.readAsText(file); e.target.value = ''; }
 
-// ALTERADO: A função agora aceita um topicId opcional
+// ALTERADO: A função agora aceita um topicId opcional e restaura progresso salvo
 function openDenunciaModal(topicId){
     editingDenunciaId = null;
     newDenunciaTopicId = topicId || 1; // Define o tópico alvo
@@ -3032,23 +1631,98 @@ function openDenunciaModal(topicId){
     resetDenunciaForm();
     initTagsUI();
     initVincularPlayerOptions();
+    
+    // NOVO: Tenta restaurar progresso salvo automaticamente
+    restoreDenunciaProgress();
+    
     denunciaModal.style.display = 'flex';
 }
 
 function openFichaModal(){ editingFichaId = null; fichaModal.querySelector('form')?.reset(); strikesCount.textContent = currentStrikes = 0; orientacoesCount.textContent = currentOrientacoes = 0; fichaModal.style.display = 'flex'; }
 newDenunciaBtn.addEventListener('click', () => openDenunciaModal()); newDenunciaBoardBtn.addEventListener('click', () => openDenunciaModal()); newFichaBtn.addEventListener('click', openFichaModal); newFichaBoardBtn.addEventListener('click', openFichaModal);
 
-// ALTERADO: Lógica de fechamento de modais
+// ALTERADO: Lógica de fechamento de modais - CORRIGIDO: Salvamento automático de progresso
 document.querySelectorAll('.modal:not(#denunciaModal) [data-action="close"]').forEach(btn => btn.addEventListener('click', e => e.currentTarget.closest('.modal').style.display = 'none'));
+
+// NOVO: Funções para salvar e restaurar progresso do formulário de denúncia
+function saveDenunciaProgress() {
+    const progress = {
+        titulo: document.getElementById('denunciaTitulo').value.trim(),
+        steamId: document.getElementById('steamId').value.trim(),
+        discordId: document.getElementById('discordId').value.trim(),
+        playerName: document.getElementById('playerName').value.trim(),
+        reporterName: document.getElementById('reporterName').value.trim(),
+        descricao: document.getElementById('denunciaDesc').value.trim(),
+        startTimer: document.getElementById('startTimer').checked,
+        vincularPlayerOptions: Array.from(vincularPlayer.selectedOptions).map(o => o.value),
+        selectedTags: Array.from(tagsContainer.querySelectorAll('.tag-item.selected')).map(el => el.dataset.id),
+        anexos: anexosTemporarios.slice(),
+        timestamp: Date.now()
+    };
+    
+    // Só salva se tiver algum conteúdo
+    if (progress.titulo || progress.steamId || progress.discordId || progress.playerName || progress.descricao) {
+        localStorage.setItem('denunciaProgressDraft', JSON.stringify(progress));
+        console.log('Progresso da denúncia salvo automaticamente');
+    }
+}
+
+function restoreDenunciaProgress() {
+    const saved = localStorage.getItem('denunciaProgressDraft');
+    if (!saved) return false;
+    
+    try {
+        const progress = JSON.parse(saved);
+        // Restaura apenas se for recente (menos de 24h)
+        if (Date.now() - progress.timestamp < 24 * 60 * 60 * 1000) {
+            document.getElementById('denunciaTitulo').value = progress.titulo || '';
+            document.getElementById('steamId').value = progress.steamId || '';
+            document.getElementById('discordId').value = progress.discordId || '';
+            document.getElementById('playerName').value = progress.playerName || '';
+            document.getElementById('reporterName').value = progress.reporterName || '';
+            document.getElementById('denunciaDesc').value = progress.descricao || '';
+            document.getElementById('startTimer').checked = progress.startTimer || false;
+            
+            // Restaura players vinculados
+            Array.from(vincularPlayer.options).forEach(opt => {
+                opt.selected = (progress.vincularPlayerOptions || []).includes(opt.value);
+            });
+            
+            // Restaura tags selecionadas
+            Array.from(tagsContainer.querySelectorAll('.tag-item')).forEach(el => {
+                if ((progress.selectedTags || []).includes(el.dataset.id)) {
+                    el.classList.add('selected');
+                }
+            });
+            
+            // Restaura anexos
+            anexosTemporarios = progress.anexos || [];
+            renderAnexosPreview();
+            
+            showToast('Progresso anterior restaurado', 'info');
+            return true;
+        }
+    } catch (e) {
+        console.error('Erro ao restaurar progresso:', e);
+    }
+    return false;
+}
+
+function clearDenunciaProgress() {
+    localStorage.removeItem('denunciaProgressDraft');
+}
+
 document.querySelectorAll('#denunciaModal [data-action="close"]').forEach(btn => {
     btn.addEventListener('click', () => {
         const titulo = document.getElementById('denunciaTitulo').value.trim();
+        // CORRIGIDO: Agora sempre salva o progresso antes de fechar
+        saveDenunciaProgress();
+        
         // Se estiver editando ou se houver um título, tenta salvar
         if (editingDenunciaId || titulo) {
             saveDenunciaBtn.click();
         } else {
             // Se for nova e sem título, apenas fecha
-            resetDenunciaForm();
             denunciaModal.style.display = 'none';
         }
     });
