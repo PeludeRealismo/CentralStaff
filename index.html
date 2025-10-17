@@ -1006,13 +1006,9 @@ saveDenunciaBtn.addEventListener('click', () => {
     const selectedTagEls = Array.from(tagsContainer.querySelectorAll('.tag-item.selected'));
     const selectedTags = selectedTagEls.map(el => tags.find(t=>t.id===Number(el.dataset.id))).filter(Boolean);
 
-    // ========= INÍCIO DA IMPLEMENTAÇÃO =========
-    // Garante que a denúncia sempre seja salva, mesmo sem título.
     if (!titulo){
         titulo = 'Denúncia Sem Título';
-        showToast('Denúncia salva com um título padrão.', 'info');
     }
-    // ========= FIM DA IMPLEMENTAÇÃO =========
 
     if (editingDenunciaId){
         const d = denuncias.find(x => x.id === editingDenunciaId);
@@ -1049,23 +1045,35 @@ saveDenunciaBtn.addEventListener('click', () => {
         denuncias.push(nova);
         addToHistorico('denuncia', `Nova denúncia criada: ${nova.titulo}`);
         showToast('Denúncia criada','success');
-        console.log('Denúncia salva:', nova);
     }
 
-    localStorage.setItem('denuncias', JSON.stringify(denuncias));
-    console.log('Total de denúncias no localStorage:', denuncias.length);
-    
+    // ========= INÍCIO DA IMPLEMENTAÇÃO DA CORREÇÃO =========
+    try {
+        localStorage.setItem('denuncias', JSON.stringify(denuncias));
+    } catch (e) {
+        // Trata erros de armazenamento, como o QuotaExceededError (limite de 5MB atingido)
+        if (e.name === 'QuotaExceededError' || (e.name === 'NS_ERROR_DOM_QUOTA_REACHED' && localStorage.length === 0) ) {
+            showToast('Erro: Armazenamento cheio! Remova anexos ou denúncias antigas.', 'error');
+        } else {
+            showToast('Ocorreu um erro inesperado ao salvar a denúncia.', 'error');
+            console.error('Erro ao salvar no localStorage:', e);
+        }
+        // Reverte a adição da denúncia no array em memória se o salvamento falhar
+        if (!editingDenunciaId) {
+            denuncias.pop();
+        }
+        return; // Impede o fechamento do modal e a perda de dados se o salvamento falhar.
+    }
+
     clearDenunciaProgress();
-    
     resetDenunciaForm();
     denunciaModal.style.display = 'none';
     editingDenunciaId = null;
-    
-    denuncias = JSON.parse(localStorage.getItem('denuncias')) || [];
-    
+
     initDenunciasBoard();
     updateDashboardStats();
     startAllTimers();
+    // ========= FIM DA IMPLEMENTAÇÃO DA CORREÇÃO =========
 });
 
 
@@ -1158,15 +1166,12 @@ saveAdditionalPlayerBtn.addEventListener('click', () => {
    Render Board / Drag & Drop
    ========================= */
 function initDenunciasBoard(){
-    console.log('Inicializando board com', denuncias.length, 'denúncias'); // Log para debug
     denunciasBoard.innerHTML = '';
     topicos.forEach(top => {
         const items = denuncias.filter(d => d.topico === top.id);
-        console.log(`Tópico ${top.titulo}: ${items.length} denúncias`); // Log para debug
         const col = document.createElement('div');
         col.className = 'board-column';
         col.dataset.topicoId = top.id;
-        // INÍCIO DA ALTERAÇÃO: Adicionado botão + ao lado do contador
         col.innerHTML = `
             <div class="column-header">
                 <div class="column-title">${top.titulo}</div>
@@ -1176,7 +1181,6 @@ function initDenunciasBoard(){
                 </div>
             </div>
             <div class="column-cards"></div>`;
-        // FIM DA ALTERAÇÃO
         const cardContainer = col.querySelector('.column-cards');
         items.sort((a, b) => new Date(b.dataCriacao) - new Date(a.dataCriacao)).forEach(d => cardContainer.appendChild(createDenunciaCard(d)));
         denunciasBoard.appendChild(col);
@@ -1247,7 +1251,6 @@ function addBoardEventListeners() {
         });
     });
 
-    // NOVO: Listener para os botões "+" dos tópicos
     denunciasBoard.querySelectorAll('.add-denuncia-to-topic').forEach(btn => {
         btn.addEventListener('click', (e) => {
             e.stopPropagation();
@@ -1537,7 +1540,6 @@ function renderAnexosPreview(){
                 <button class="anexo-remove">&times;</button>
             </div>`;
         } else {
-            // CORRIGIDO: Arquivos .replay agora podem ser baixados
             return `<div class="anexo-item" data-index="${idx}">
                 <div class="file-icon" title="${a.name}">
                     <i class="fas fa-file"></i>
@@ -1558,7 +1560,6 @@ function downloadBase64File(dataUrl, filename){ const a = document.createElement
 function openLightbox(src){ document.getElementById('lightboxImage').src = src; lightboxModal.style.display = 'flex'; }
 function formatDuration(ms){ if (!ms && ms !== 0) return '—'; const s = Math.floor(ms/1000); return `${String(Math.floor(s/3600)).padStart(2,'0')}:${String(Math.floor((s%3600)/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`; }
 
-// ALTERADO: Lógica para exibir "Expirado"
 function formatDenunciaTimer(d){
     const twentyFourHours = 24 * 60 * 60 * 1000;
     const e = (d.timerElapsed || 0) + (d.timerRunning && d.timerStart ? (Date.now() - d.timerStart) : 0);
@@ -1569,7 +1570,6 @@ function formatDenunciaTimer(d){
 }
 
 let timerInterval = null;
-// ALTERADO: Lógica para parar o cronômetro em 24h
 function startAllTimers(){
     if (timerInterval) clearInterval(timerInterval);
     timerInterval = setInterval(() => {
@@ -1580,7 +1580,7 @@ function startAllTimers(){
                 const elapsed = (d.timerElapsed || 0) + (d.timerStart ? (Date.now() - d.timerStart) : 0);
                 if (elapsed >= twentyFourHours) {
                     d.timerRunning = false;
-                    d.timerElapsed += (Date.now() - d.timerStart); // Final update
+                    d.timerElapsed += (Date.now() - d.timerStart);
                     d.timerStart = null;
                     needsSave = true;
                 }
@@ -1612,7 +1612,7 @@ function initTagsList(){ const list = document.getElementById('tagsManagementLis
 async function handleBackgroundUpload(e){ const file = e.target.files[0]; if (!file) return; const b = await fileToBase64(file); document.documentElement.style.setProperty('--denuncias-bg', `url('${b.data}')`); localStorage.setItem('denunciasBackground', b.data); bgPreview.innerHTML = `<div class="anexo-item"><img src="${b.data}"></div>`; showToast('Background aplicado','success'); }
 function loadBackground(){ const data = localStorage.getItem('denunciasBackground'); if (data) { document.documentElement.style.setProperty('--denuncias-bg', `url('${data}')`); bgPreview.innerHTML = `<div class="anexo-item"><img src="${data}"></div>`; } }
 document.getElementById('restoreBgBtn').addEventListener('click', ()=>{ localStorage.removeItem('denunciasBackground'); document.documentElement.style.setProperty('--denuncias-bg','none'); bgPreview.innerHTML = ''; });
-function initSettings() { themeSelect.addEventListener('change', handleThemeChange); document.getElementById('applyCustomThemeBtn').addEventListener('click', applyAndSaveCustomTheme); document.getElementById('downloadBackupBtn').addEventListener('click', downloadBackup); document.getElementById('importBackupBtn').addEventListener('click', () => document.getElementById('importBackupInput').click()); document.getElementById('importBackupInput').addEventListener('change', importBackup); exportPdfBtn.addEventListener('click', exportDenunciasToPDF); loadSelectedTheme(); } // ALTERADO
+function initSettings() { themeSelect.addEventListener('change', handleThemeChange); document.getElementById('applyCustomThemeBtn').addEventListener('click', applyAndSaveCustomTheme); document.getElementById('downloadBackupBtn').addEventListener('click', downloadBackup); document.getElementById('importBackupBtn').addEventListener('click', () => document.getElementById('importBackupInput').click()); document.getElementById('importBackupInput').addEventListener('change', importBackup); exportPdfBtn.addEventListener('click', exportDenunciasToPDF); loadSelectedTheme(); }
 function handleThemeChange() { const theme = themeSelect.value; const customThemeContainer = document.getElementById('customThemeContainer'); document.documentElement.removeAttribute('data-theme'); document.documentElement.style.cssText = ''; if (theme === 'custom') { customThemeContainer.style.display = 'block'; loadCustomTheme(); } else { customThemeContainer.style.display = 'none'; if (theme !== 'blue') document.documentElement.setAttribute('data-theme', theme); localStorage.setItem('selectedTheme', theme); localStorage.removeItem('customTheme'); } }
 function applyAndSaveCustomTheme() { const colors = { primary: document.getElementById('primaryColor').value, bg: document.getElementById('backgroundColor').value, text: document.getElementById('textColor').value, cardBg: document.getElementById('cardColor').value }; localStorage.setItem('customTheme', JSON.stringify(colors)); localStorage.setItem('selectedTheme', 'custom'); applyCustomCss(colors); showToast('Tema personalizado aplicado!', 'success'); }
 function loadCustomTheme() { const savedTheme = JSON.parse(localStorage.getItem('customTheme') || 'null'); if (savedTheme) { document.getElementById('primaryColor').value = savedTheme.primary; document.getElementById('backgroundColor').value = savedTheme.bg; document.getElementById('textColor').value = savedTheme.text; document.getElementById('cardColor').value = savedTheme.cardBg; applyCustomCss(savedTheme); } }
@@ -1621,16 +1621,14 @@ function loadSelectedTheme(){ const s = localStorage.getItem('selectedTheme') ||
 function downloadBackup() { const data = { denuncias, fichas, historico, tags, topicos, agenda, anotacoes, settings: { theme: localStorage.getItem('selectedTheme'), customTheme: JSON.parse(localStorage.getItem('customTheme')||'null'), background: localStorage.getItem('denunciasBackground') }}; const a = document.createElement('a'); a.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2)); a.download = `staff_portal_backup_${new Date().toISOString().slice(0, 10)}.json`; a.click(); }
 function importBackup(e) { const file = e.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = function(e) { try { const data = JSON.parse(e.target.result); if (confirm('Importar backup? Todos os dados atuais serão substituídos.')) { Object.keys(data).forEach(key => localStorage.setItem(key, JSON.stringify(data[key]))); if(data.settings) Object.keys(data.settings).forEach(key => localStorage.setItem(key, data.settings[key])); showToast('Backup importado! A página será recarregada.', 'success'); setTimeout(() => location.reload(), 1500); } } catch (err) { showToast('Erro ao ler o backup.', 'error'); } }; reader.readAsText(file); e.target.value = ''; }
 
-// ALTERADO: A função agora aceita um topicId opcional e restaura progresso salvo
 function openDenunciaModal(topicId){
     editingDenunciaId = null;
-    newDenunciaTopicId = topicId || 1; // Define o tópico alvo
+    newDenunciaTopicId = topicId || 1;
     document.getElementById('denunciaModalTitle').textContent = 'Nova Denúncia';
     resetDenunciaForm();
     initTagsUI();
     initVincularPlayerOptions();
     
-    // NOVO: Tenta restaurar progresso salvo automaticamente
     restoreDenunciaProgress();
     
     denunciaModal.style.display = 'flex';
@@ -1639,10 +1637,8 @@ function openDenunciaModal(topicId){
 function openFichaModal(){ editingFichaId = null; fichaModal.querySelector('form')?.reset(); strikesCount.textContent = currentStrikes = 0; orientacoesCount.textContent = currentOrientacoes = 0; fichaModal.style.display = 'flex'; }
 newDenunciaBtn.addEventListener('click', () => openDenunciaModal()); newDenunciaBoardBtn.addEventListener('click', () => openDenunciaModal()); newFichaBtn.addEventListener('click', openFichaModal); newFichaBoardBtn.addEventListener('click', openFichaModal);
 
-// ALTERADO: Lógica de fechamento de modais - CORRIGIDO: Salvamento automático de progresso
 document.querySelectorAll('.modal:not(#denunciaModal) [data-action="close"]').forEach(btn => btn.addEventListener('click', e => e.currentTarget.closest('.modal').style.display = 'none'));
 
-// NOVO: Funções para salvar e restaurar progresso do formulário de denúncia
 function saveDenunciaProgress() {
     const progress = {
         titulo: document.getElementById('denunciaTitulo').value.trim(),
@@ -1658,10 +1654,8 @@ function saveDenunciaProgress() {
         timestamp: Date.now()
     };
     
-    // Só salva se tiver algum conteúdo
     if (progress.titulo || progress.steamId || progress.discordId || progress.playerName || progress.descricao) {
         localStorage.setItem('denunciaProgressDraft', JSON.stringify(progress));
-        console.log('Progresso da denúncia salvo automaticamente');
     }
 }
 
@@ -1671,7 +1665,6 @@ function restoreDenunciaProgress() {
     
     try {
         const progress = JSON.parse(saved);
-        // Restaura apenas se for recente (menos de 24h)
         if (Date.now() - progress.timestamp < 24 * 60 * 60 * 1000) {
             document.getElementById('denunciaTitulo').value = progress.titulo || '';
             document.getElementById('steamId').value = progress.steamId || '';
@@ -1681,19 +1674,16 @@ function restoreDenunciaProgress() {
             document.getElementById('denunciaDesc').value = progress.descricao || '';
             document.getElementById('startTimer').checked = progress.startTimer || false;
             
-            // Restaura players vinculados
             Array.from(vincularPlayer.options).forEach(opt => {
                 opt.selected = (progress.vincularPlayerOptions || []).includes(opt.value);
             });
             
-            // Restaura tags selecionadas
             Array.from(tagsContainer.querySelectorAll('.tag-item')).forEach(el => {
                 if ((progress.selectedTags || []).includes(el.dataset.id)) {
                     el.classList.add('selected');
                 }
             });
             
-            // Restaura anexos
             anexosTemporarios = progress.anexos || [];
             renderAnexosPreview();
             
@@ -1710,21 +1700,28 @@ function clearDenunciaProgress() {
     localStorage.removeItem('denunciaProgressDraft');
 }
 
+// ========= INÍCIO DA IMPLEMENTAÇÃO DA CORREÇÃO (Botão Cancelar/Fechar) =========
 document.querySelectorAll('#denunciaModal [data-action="close"]').forEach(btn => {
     btn.addEventListener('click', () => {
-        const titulo = document.getElementById('denunciaTitulo').value.trim();
-        // CORRIGIDO: Agora sempre salva o progresso antes de fechar
-        saveDenunciaProgress();
-        
-        // Se estiver editando ou se houver um título, tenta salvar
-        if (editingDenunciaId || titulo) {
-            saveDenunciaBtn.click();
+        const hasContent = document.getElementById('denunciaTitulo').value.trim() ||
+                           document.getElementById('denunciaDesc').value.trim() ||
+                           anexosTemporarios.length > 0;
+
+        // Se estiver criando uma nova denúncia e houver conteúdo, pede confirmação.
+        if (editingDenunciaId === null && hasContent) {
+            if (confirm('Você tem certeza que deseja fechar? Todas as informações não salvas serão perdidas.')) {
+                resetDenunciaForm();
+                clearDenunciaProgress();
+                denunciaModal.style.display = 'none';
+            }
         } else {
-            // Se for nova e sem título, apenas fecha
+            // Se estiver editando ou o formulário estiver vazio, apenas fecha sem perguntar.
+            resetDenunciaForm();
             denunciaModal.style.display = 'none';
         }
     });
 });
+// ========= FIM DA IMPLEMENTAÇÃO DA CORREÇÃO (Botão Cancelar/Fechar) =========
 
 window.addEventListener('click', e => { if (e.target.classList.contains('modal')) e.target.style.display = 'none'; });
 document.addEventListener('keydown', e => { if (e.key === 'Escape') document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); });
@@ -1741,7 +1738,6 @@ document.addEventListener("click", closeAllSelect);
 document.addEventListener('DOMContentLoaded', init);
 function init(){ checkLogin(); }
 
-// NOVO: Função para exportar para PDF
 function exportDenunciasToPDF() {
     const monthYear = reportMonthInput.value;
     if (!monthYear) {
@@ -1819,7 +1815,7 @@ function exportDenunciasToPDF() {
     pdfWindow.focus();
     setTimeout(() => { 
         pdfWindow.print();
-    }, 500); // Um pequeno atraso para garantir que o conteúdo seja renderizado antes de imprimir
+    }, 500);
     showToast('Relatório gerado para impressão em PDF!', 'success');
 }
 
